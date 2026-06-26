@@ -1,0 +1,105 @@
+import { Link, useNavigate, useLocation } from 'react-router-dom';
+import { Navbar, Nav, Container, Button, Dropdown } from 'react-bootstrap';
+import { useTranslation } from 'react-i18next';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faGlobe, faMoon, faSun } from '@fortawesome/free-solid-svg-icons';
+import { useAuthStore } from '../../store/authStore';
+import { useThemeStore } from '../../store/themeStore';
+import { useLanguageStore } from '../../store/languageStore';
+
+export default function AppNavbar() {
+  const { t } = useTranslation();
+  const navigate = useNavigate();
+  const { pathname } = useLocation();
+  const token = useAuthStore((s) => s.token);
+  const logout = useAuthStore((s) => s.logout);
+  const isAdmin = useAuthStore((s) => s.isAdmin());
+  const themeMode = useThemeStore((s) => s.mode);
+  const toggleTheme = useThemeStore((s) => s.toggle);
+  const language = useLanguageStore((s) => s.language);
+  const setLanguage = useLanguageStore((s) => s.setLanguage);
+
+  const handleLogout = () => {
+    logout();
+    navigate('/');
+  };
+
+  return (
+    <Navbar expand="md" bg="body-tertiary" className="border-bottom shadow-sm">
+      <Container>
+        <Navbar.Brand as={Link} to="/">
+          {t('appName')}
+        </Navbar.Brand>
+        <Navbar.Toggle aria-controls="main-nav" />
+        <Navbar.Collapse id="main-nav">
+          <Nav className="me-auto">
+            <Nav.Link as={Link} to="/">
+              {t('nav.listings')}
+            </Nav.Link>
+            {token && (
+              <Nav.Link as={Link} to="/create">
+                {t('nav.create')}
+              </Nav.Link>
+            )}
+            {isAdmin && (
+              <Nav.Link as={Link} to="/admin/users">
+                {t('admin.users')}
+              </Nav.Link>
+            )}
+          </Nav>
+          <div className="d-flex flex-wrap align-items-center gap-2 mt-2 mt-md-0">
+            <Dropdown align="end">
+              <Dropdown.Toggle variant="outline-secondary" size="sm" id="language-selector">
+                <FontAwesomeIcon icon={faGlobe} className="me-1" />
+                {language === 'fa' ? t('language.farsi') : t('language.english')}
+              </Dropdown.Toggle>
+              <Dropdown.Menu>
+                <Dropdown.Item active={language === 'en'} onClick={() => setLanguage('en')}>
+                  {t('language.english')}
+                </Dropdown.Item>
+                <Dropdown.Item active={language === 'fa'} onClick={() => setLanguage('fa')}>
+                  {t('language.farsi')}
+                </Dropdown.Item>
+              </Dropdown.Menu>
+            </Dropdown>
+            <Button variant="outline-secondary" size="sm" onClick={toggleTheme} title="Theme">
+              {themeMode === 'dark' ? (
+                <>
+                  <FontAwesomeIcon icon={faSun} className="me-1" />
+                  {t('theme.light')}
+                </>
+              ) : (
+                <>
+                  <FontAwesomeIcon icon={faMoon} className="me-1" />
+                  {t('theme.dark')}
+                </>
+              )}
+            </Button>
+            {token ? (
+              <Button variant="outline-primary" size="sm" onClick={handleLogout}>
+                {t('nav.logout')}
+              </Button>
+            ) : (
+              <>
+                <Link
+                  to="/login"
+                  className={`btn btn-outline-primary btn-sm${pathname === '/login' ? ' active' : ''}`}
+                  aria-current={pathname === '/login' ? 'page' : undefined}
+                >
+                  {t('nav.login')}
+                </Link>
+                <Link
+                  to="/register"
+                  className={`btn btn-outline-primary btn-sm${pathname === '/register' ? ' active' : ''}`}
+                  aria-current={pathname === '/register' ? 'page' : undefined}
+                >
+                  {t('nav.register')}
+                </Link>
+              </>
+            )}
+          </div>
+        </Navbar.Collapse>
+      </Container>
+    </Navbar>
+  );
+}

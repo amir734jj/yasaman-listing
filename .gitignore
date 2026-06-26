@@ -1,0 +1,12 @@
+## .NET
+bin/
+obj/
+*.user
+
+## Frontend
+ui/node_modules/
+ui/dist/
+
+## IDE
+.vs/
+.idea/
