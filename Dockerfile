@@ -14,7 +14,7 @@ RUN npm ci && npm run build
 FROM mcr.microsoft.com/dotnet/aspnet:10.0-alpine AS final
 WORKDIR /app
 
-ENV ASPNETCORE_URLS=http://+:8080
+ENV ASPNETCORE_URLS=http://+:3000
 ENV ASPNETCORE_ENVIRONMENT=Production
 
 RUN apk add --no-cache icu-libs tzdata
@@ -22,5 +22,5 @@ RUN apk add --no-cache icu-libs tzdata
 COPY --from=backend-build /app/out .
 COPY --from=frontend-build /app/dist ./wwwroot
 
-EXPOSE 8080
+EXPOSE 3000
 ENTRYPOINT ["dotnet", "Api.dll"]
