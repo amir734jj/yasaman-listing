@@ -3,6 +3,7 @@ import Layout from '../components/layout';
 import ProtectedRoute from '../components/protected-route';
 import ListingsPage from '../pages/listings';
 import ListingDetailPage from '../pages/listing-detail';
+import AboutPage from '../pages/about';
 import CreateListingPage from '../pages/create-listing';
 import ProfilePage from '../pages/profile';
 import LoginPage from '../pages/login';
@@ -15,6 +16,7 @@ export default function App() {
       <Route element={<Layout />}>
         <Route index element={<ListingsPage />} />
         <Route path="listings/:id" element={<ListingDetailPage />} />
+        <Route path="about" element={<AboutPage />} />
         <Route
           path="create"
           element={

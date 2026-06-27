@@ -2,6 +2,7 @@ export const en = {
   appName: 'Yasaman Listing',
   nav: {
     listings: 'Listings',
+    about: 'About',
     create: 'Create Listing',
     login: 'Login',
     register: 'Register',
@@ -99,6 +100,20 @@ export const en = {
   },
   seo: {
     tagline: 'Browse, search and post local listings for sale on Yasaman Listing.',
+  },
+  about: {
+    title: 'About Yasaman Listing',
+    tagline: 'A free listing website — the Iranian version of Craigslist.',
+    body1:
+      'Yasaman Listing is a free, community-driven marketplace where anyone can post and browse local listings across Iran. Sell your goods, find what you need, and connect with people in your city — at no cost.',
+    body2:
+      'There are no listing fees and no commissions. Just create an account, post your item with photos and a price, and reach buyers near you.',
+    feesTitle: 'Always free',
+    fees: 'Posting and browsing listings is completely free for everyone.',
+    localTitle: 'Local to Iran',
+    local: 'Listings are organized by Iranian cities so you can buy and sell close to home.',
+    simpleTitle: 'Simple and fast',
+    simple: 'A clean, lightweight site that works well even on slow connections.',
   },
   profile: {
     title: 'My profile',

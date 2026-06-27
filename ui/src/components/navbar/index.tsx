@@ -36,6 +36,9 @@ export default function AppNavbar() {
             <Nav.Link as={Link} to="/">
               {t('nav.listings')}
             </Nav.Link>
+            <Nav.Link as={Link} to="/about">
+              {t('nav.about')}
+            </Nav.Link>
             {token && (
               <Nav.Link as={Link} to="/create">
                 {t('nav.create')}
