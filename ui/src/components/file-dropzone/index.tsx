@@ -1,7 +1,7 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useState } from 'react';
 import { useDropzone, type FileRejection } from 'react-dropzone';
 import { useTranslation } from 'react-i18next';
-import { Row, Col, Button, Alert } from 'react-bootstrap';
+import { Button, Alert, ListGroup } from 'react-bootstrap';
 import './index.css';
 
 const MAX_FILES = 10;
@@ -63,14 +63,6 @@ export default function FileDropzone({ files, onFilesChange }: FileDropzoneProps
     },
   });
 
-  // Build object URLs for previews and revoke them when the file list changes / on unmount.
-  const previews = useMemo(
-    () => files.map((file) => ({ file, url: URL.createObjectURL(file) })),
-    [files],
-  );
-
-  useEffect(() => () => previews.forEach((p) => URL.revokeObjectURL(p.url)), [previews]);
-
   const removeAt = (index: number) => {
     onFilesChange(files.filter((_, i) => i !== index));
   };
@@ -98,27 +90,31 @@ export default function FileDropzone({ files, onFilesChange }: FileDropzoneProps
         </Alert>
       )}
 
-      {previews.length > 0 && (
-        <Row className="g-2 mt-1">
-          {previews.map((p, index) => (
-            <Col xs={6} md={4} key={`${p.file.name}-${index}`}>
-              {p.file.type.startsWith('video') ? (
-                <video src={p.url} controls className="media-thumb" />
-              ) : (
-                <img src={p.url} alt={p.file.name} className="media-thumb" />
-              )}
+      {files.length > 0 && (
+        <ListGroup className="mt-2">
+          {files.map((file, index) => (
+            <ListGroup.Item
+              key={`${file.name}-${index}`}
+              className="d-flex justify-content-between align-items-center gap-2"
+            >
+              <span className="text-truncate">
+                {file.name}{' '}
+                <span className="text-body-secondary small">
+                  ({(file.size / (1024 * 1024)).toFixed(1)} MB)
+                </span>
+              </span>
               <Button
                 type="button"
-                variant="danger"
+                variant="outline-danger"
                 size="sm"
-                className="w-100 mt-1"
+                className="flex-shrink-0"
                 onClick={() => removeAt(index)}
               >
                 {t('create.removeFile')}
               </Button>
-            </Col>
+            </ListGroup.Item>
           ))}
-        </Row>
+        </ListGroup>
       )}
     </div>
   );

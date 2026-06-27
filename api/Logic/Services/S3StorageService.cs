@@ -1,6 +1,5 @@
 using Amazon.S3;
 using Amazon.S3.Model;
-using Amazon.S3.Transfer;
 using Logic.Configs;
 using Logic.Dtos.Storage;
 using Logic.Interfaces;
@@ -26,19 +25,44 @@ public class S3StorageService : IStorageService
         var extension = Path.GetExtension(request.FileName);
         var key = $"{keyPrefix.Trim('/')}/{Guid.NewGuid():N}{extension}";
 
-        // TransferUtility streams the (forward-only, unknown-length) upload to the bucket using a
-        // multipart upload, so memory stays bounded by the part size instead of the whole file.
-        using var transfer = new TransferUtility(_client);
-        var upload = new TransferUtilityUploadRequest
+        // S3-compatible providers reject the chunked STREAMING-AWS4-HMAC-SHA256-PAYLOAD signature
+        // used for forward-only streams. Spool the upload to a temp file (streamed to disk, not
+        // held in memory, auto-deleted on close) so the SDK gets a seekable stream and signs the
+        // payload normally.
+        Stream content = request.Content;
+        FileStream? spooled = null;
+        if (!content.CanSeek)
         {
-            BucketName = _settings.BucketName,
-            Key = key,
-            InputStream = request.Content,
-            ContentType = request.ContentType,
-            AutoCloseStream = false
-        };
+            spooled = new FileStream(
+                Path.GetTempFileName(),
+                FileMode.Create, FileAccess.ReadWrite, FileShare.None,
+                bufferSize: 81920,
+                FileOptions.Asynchronous | FileOptions.DeleteOnClose);
 
-        await transfer.UploadAsync(upload, cancellationToken);
+            await content.CopyToAsync(spooled, cancellationToken);
+            await spooled.FlushAsync(cancellationToken);
+            spooled.Position = 0;
+            content = spooled;
+        }
+
+        try
+        {
+            await _client.PutObjectAsync(new PutObjectRequest
+            {
+                BucketName = _settings.BucketName,
+                Key = key,
+                InputStream = content,
+                ContentType = request.ContentType,
+                AutoCloseStream = false
+            }, cancellationToken);
+        }
+        finally
+        {
+            if (spooled is not null)
+            {
+                await spooled.DisposeAsync();
+            }
+        }
 
         return new UploadedFile
         {

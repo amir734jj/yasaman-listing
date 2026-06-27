@@ -120,9 +120,8 @@ export default function CreateListingPage() {
         <Form.Group className="mb-3">
           <Form.Label>{t('create.price')}</Form.Label>
           <Form.Control
-            type="number"
-            min="0"
-            step="0.01"
+            type="text"
+            inputMode="decimal"
             value={price}
             onChange={(e) => setPrice(e.target.value)}
             required

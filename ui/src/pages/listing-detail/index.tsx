@@ -97,7 +97,7 @@ export default function ListingDetailPage() {
   return (
     <div>
       <Link to="/" className="link-secondary text-decoration-none">
-        <FontAwesomeIcon icon={language === 'fa' ? faArrowRight : faArrowLeft} className="me-1" />
+        <FontAwesomeIcon icon={language === 'fa' ? faArrowRight : faArrowLeft} style={{ marginInlineEnd: '0.4rem' }} />
         {t('detail.back')}
       </Link>
 

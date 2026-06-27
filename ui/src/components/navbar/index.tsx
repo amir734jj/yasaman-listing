@@ -50,7 +50,7 @@ export default function AppNavbar() {
           <div className="d-flex flex-wrap align-items-center gap-2 mt-2 mt-md-0">
             <Dropdown align="end">
               <Dropdown.Toggle variant="outline-secondary" size="sm" id="language-selector">
-                <FontAwesomeIcon icon={faGlobe} className="me-1" />
+                <FontAwesomeIcon icon={faGlobe} style={{ marginInlineEnd: '0.4rem' }} />
                 {language === 'fa' ? t('language.farsi') : t('language.english')}
               </Dropdown.Toggle>
               <Dropdown.Menu>
@@ -65,12 +65,12 @@ export default function AppNavbar() {
             <Button variant="outline-secondary" size="sm" onClick={toggleTheme} title="Theme">
               {themeMode === 'dark' ? (
                 <>
-                  <FontAwesomeIcon icon={faSun} className="me-1" />
+                  <FontAwesomeIcon icon={faSun} style={{ marginInlineEnd: '0.4rem' }} />
                   {t('theme.light')}
                 </>
               ) : (
                 <>
-                  <FontAwesomeIcon icon={faMoon} className="me-1" />
+                  <FontAwesomeIcon icon={faMoon} style={{ marginInlineEnd: '0.4rem' }} />
                   {t('theme.dark')}
                 </>
               )}
