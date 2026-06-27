@@ -10,11 +10,6 @@
  * ---------------------------------------------------------------
  */
 
-export enum MediaType {
-  Image = "Image",
-  Video = "Video",
-}
-
 export enum ListingStatus {
   Available = "Available",
   Sold = "Sold",
@@ -38,25 +33,8 @@ export interface AuthResponse {
   roles?: string[] | null;
 }
 
-export interface ProfileDto {
-  /** @format uuid */
-  id?: string;
-  email?: string | null;
-  displayName?: string | null;
-  description?: string | null;
-}
-
-export interface UpdateProfileRequest {
-  /**
-   * @minLength 1
-   * @maxLength 256
-   */
-  displayName: string;
-  /** @maxLength 2000 */
-  description?: string | null;
-}
-
 export interface ChangePasswordRequest {
+  /** @minLength 1 */
   currentPassword: string;
   /** @minLength 6 */
   newPassword: string;
@@ -78,8 +56,22 @@ export interface CreateListingRequest {
    * @maxLength 300
    */
   location: string;
-  price?: string | null;
+  /**
+   * @minLength 1
+   * @maxLength 100
+   */
+  price: string;
   tags?: string[] | null;
+}
+
+export interface GlobalConfigModel {
+  siteName?: string | null;
+  contactEmail?: string | null;
+  /** @format int32 */
+  listingExpiryDays?: number;
+  /** @format int32 */
+  maxMediaPerListing?: number;
+  buildDate?: string | null;
 }
 
 export interface ListingDto {
@@ -111,15 +103,6 @@ export interface ListingDtoPagedResult {
   pageSize?: number;
 }
 
-export interface ListingMediaDto {
-  /** @format uuid */
-  id?: string;
-  type?: MediaType;
-  url?: string | null;
-  /** @format int32 */
-  order?: number;
-}
-
 export interface LoginRequest {
   /**
    * @format email
@@ -128,6 +111,14 @@ export interface LoginRequest {
   email: string;
   /** @minLength 1 */
   password: string;
+}
+
+export interface ProfileDto {
+  /** @format uuid */
+  id?: string;
+  email?: string | null;
+  displayName?: string | null;
+  description?: string | null;
 }
 
 export interface RegisterRequest {
@@ -143,6 +134,10 @@ export interface RegisterRequest {
    * @maxLength 256
    */
   displayName: string;
+}
+
+export interface ReorderMediaRequest {
+  mediaIds: string[];
 }
 
 export interface UpdateListingRequest {
@@ -161,8 +156,22 @@ export interface UpdateListingRequest {
    * @maxLength 300
    */
   location: string;
-  price?: string | null;
+  /**
+   * @minLength 1
+   * @maxLength 100
+   */
+  price: string;
   tags?: string[] | null;
+}
+
+export interface UpdateProfileRequest {
+  /**
+   * @minLength 1
+   * @maxLength 256
+   */
+  displayName: string;
+  /** @maxLength 2000 */
+  description?: string | null;
 }
 
 export interface UserDto {
@@ -425,7 +434,10 @@ export class Api<
      * @request PUT:/api/account/profile
      * @secure
      */
-    accountProfileUpdate: (data: UpdateProfileRequest, params: RequestParams = {}) =>
+    accountProfileUpdate: (
+      data: UpdateProfileRequest,
+      params: RequestParams = {},
+    ) =>
       this.request<ProfileDto, any>({
         path: `/api/account/profile`,
         method: "PUT",
@@ -444,13 +456,109 @@ export class Api<
      * @request PUT:/api/account/password
      * @secure
      */
-    accountPasswordUpdate: (data: ChangePasswordRequest, params: RequestParams = {}) =>
+    accountPasswordUpdate: (
+      data: ChangePasswordRequest,
+      params: RequestParams = {},
+    ) =>
       this.request<void, any>({
         path: `/api/account/password`,
         method: "PUT",
         body: data,
         secure: true,
         type: ContentType.Json,
+        ...params,
+      }),
+  };
+  file = {
+    /**
+     * No description
+     *
+     * @tags File
+     * @name FilesDetail
+     * @request GET:/api/files/{fileId}
+     * @secure
+     */
+    filesDetail: (
+      fileId: string,
+      query?: {
+        thumb?: string;
+      },
+      params: RequestParams = {},
+    ) =>
+      this.request<void, any>({
+        path: `/api/files/${fileId}`,
+        method: "GET",
+        query: query,
+        secure: true,
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags File
+     * @name HeadFile
+     * @request HEAD:/api/files/{fileId}
+     * @secure
+     */
+    headFile: (fileId: string, params: RequestParams = {}) =>
+      this.request<void, any>({
+        path: `/api/files/${fileId}`,
+        method: "HEAD",
+        secure: true,
+        ...params,
+      }),
+  };
+  globalConfig = {
+    /**
+     * No description
+     *
+     * @tags GlobalConfig
+     * @name GlobalConfigList
+     * @request GET:/api/global-config
+     * @secure
+     */
+    globalConfigList: (params: RequestParams = {}) =>
+      this.request<GlobalConfigModel, any>({
+        path: `/api/global-config`,
+        method: "GET",
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags GlobalConfig
+     * @name GlobalConfigCreate
+     * @request POST:/api/global-config
+     * @secure
+     */
+    globalConfigCreate: (data: GlobalConfigModel, params: RequestParams = {}) =>
+      this.request<void, any>({
+        path: `/api/global-config`,
+        method: "POST",
+        body: data,
+        secure: true,
+        type: ContentType.Json,
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags GlobalConfig
+     * @name GlobalConfigPublicList
+     * @request GET:/api/global-config/public
+     * @secure
+     */
+    globalConfigPublicList: (params: RequestParams = {}) =>
+      this.request<Record<string, any>, any>({
+        path: `/api/global-config/public`,
+        method: "GET",
+        secure: true,
+        format: "json",
         ...params,
       }),
   };
@@ -630,17 +738,16 @@ export class Api<
       id: string,
       data: {
         /** @format binary */
-        file?: File;
+        file: File;
       },
       params: RequestParams = {},
     ) =>
-      this.request<ListingMediaDto, any>({
+      this.request<void, any>({
         path: `/api/listings/${id}/media`,
         method: "POST",
         body: data,
         secure: true,
         type: ContentType.FormData,
-        format: "json",
         ...params,
       }),
 
@@ -649,16 +756,16 @@ export class Api<
      *
      * @tags Listing
      * @name ListingsMediaDelete
-     * @request DELETE:/api/listings/{id}/media/{mediaId}
+     * @request DELETE:/api/listings/{id}/media/{fileId}
      * @secure
      */
     listingsMediaDelete: (
       id: string,
-      mediaId: string,
+      fileId: string,
       params: RequestParams = {},
     ) =>
       this.request<void, any>({
-        path: `/api/listings/${id}/media/${mediaId}`,
+        path: `/api/listings/${id}/media/${fileId}`,
         method: "DELETE",
         secure: true,
         ...params,
@@ -674,9 +781,7 @@ export class Api<
      */
     listingsMediaOrderUpdate: (
       id: string,
-      data: {
-        mediaIds: string[];
-      },
+      data: ReorderMediaRequest,
       params: RequestParams = {},
     ) =>
       this.request<void, any>({
@@ -685,6 +790,23 @@ export class Api<
         body: data,
         secure: true,
         type: ContentType.Json,
+        ...params,
+      }),
+  };
+  sitemap = {
+    /**
+     * No description
+     *
+     * @tags Sitemap
+     * @name SitemapXmlList
+     * @request GET:/sitemap.xml
+     * @secure
+     */
+    sitemapXmlList: (params: RequestParams = {}) =>
+      this.request<void, any>({
+        path: `/sitemap.xml`,
+        method: "GET",
+        secure: true,
         ...params,
       }),
   };
