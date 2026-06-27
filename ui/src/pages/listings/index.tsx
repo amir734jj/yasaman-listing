@@ -3,17 +3,25 @@ import { Link, useSearchParams } from 'react-router-dom';
 import { Row, Col, Form, InputGroup, Spinner, ButtonGroup, Button } from 'react-bootstrap';
 import { useTranslation } from 'react-i18next';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faMagnifyingGlass, faTableCells, faMapLocationDot } from '@fortawesome/free-solid-svg-icons';
+import {
+  faMagnifyingGlass,
+  faTableCells,
+  faMapLocationDot,
+  faArrowLeft,
+  faArrowRight,
+} from '@fortawesome/free-solid-svg-icons';
 import { api } from '../../api/client';
 import { type ListingDto, ListingSortBy } from '../../api/generated/Api';
 import ListingCard from '../../components/listing-card';
 import ListingsMap from '../../components/listings-map';
+import { useLanguageStore } from '../../store/languageStore';
 import { useSeo } from '../../hooks/useSeo';
 import { websiteJsonLd, listingsItemListJsonLd } from '../../hooks/structuredData';
 import { paths } from '../../routes';
 
 export default function ListingsPage() {
   const { t } = useTranslation();
+  const language = useLanguageStore((s) => s.language);
   const [searchParams] = useSearchParams();
   const owner = searchParams.get('owner');
   const [search, setSearch] = useState('');
@@ -57,6 +65,10 @@ export default function ListingsPage() {
 
       {owner && (
         <Link to={paths.root} className="link-secondary d-inline-block mb-3">
+          <FontAwesomeIcon
+            icon={language === 'fa' ? faArrowRight : faArrowLeft}
+            style={{ marginInlineEnd: '0.4rem' }}
+          />
           {t('listings.allListings')}
         </Link>
       )}

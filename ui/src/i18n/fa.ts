@@ -32,7 +32,7 @@ export const fa: TranslationSchema = {
     status: 'وضعیت',
     by: 'توسط',
     byOwner: 'آگهی‌های {{name}}',
-    allListings: '← همه آگهی‌ها',
+    allListings: 'همه آگهی‌ها',
     viewDetails: 'مشاهده جزئیات',
     viewGrid: 'شبکه‌ای',
     viewMap: 'نقشه',

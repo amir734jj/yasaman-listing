@@ -30,7 +30,7 @@ export const en = {
     status: 'Status',
     by: 'by',
     byOwner: 'Listings by {{name}}',
-    allListings: '← All listings',
+    allListings: 'All listings',
     viewDetails: 'View details',
     viewGrid: 'Grid',
     viewMap: 'Map',
