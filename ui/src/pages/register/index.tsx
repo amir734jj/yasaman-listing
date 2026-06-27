@@ -5,6 +5,7 @@ import { useTranslation } from 'react-i18next';
 import { api } from '../../api/client';
 import { useAuthStore } from '../../store/authStore';
 import { useSeo } from '../../hooks/useSeo';
+import { paths } from '../../routes';
 
 export default function RegisterPage() {
   const { t } = useTranslation();
@@ -30,7 +31,7 @@ export default function RegisterPage() {
     try {
       const res = await api.account.accountRegisterCreate({ email, password, displayName });
       setAuth(res.data);
-      navigate('/');
+      navigate(paths.root);
     } catch (err: unknown) {
       const message =
         (err as { response?: { data?: { message?: string } } })?.response?.data?.message ??
@@ -93,7 +94,7 @@ export default function RegisterPage() {
           </Button>
         </Form>
         <p className="text-body-secondary mt-3 mb-0">
-          <Link to="/login">{t('auth.haveAccount')}</Link>
+          <Link to={paths.login}>{t('auth.haveAccount')}</Link>
         </p>
       </Card.Body>
     </Card>

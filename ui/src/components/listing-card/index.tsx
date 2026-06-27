@@ -5,6 +5,7 @@ import { type ListingDto, ListingStatus } from '../../api/generated/Api';
 import { useLanguageStore } from '../../store/languageStore';
 import { formatPrice } from '../../utils/format';
 import MediaView from '../media-view';
+import { compilePath, paths } from '../../routes';
 import './index.css';
 
 const statusVariant: Record<ListingStatus, string> = {
@@ -20,7 +21,7 @@ export default function ListingCard({ listing }: { listing: ListingDto }) {
   const status = listing.status ?? ListingStatus.Available;
 
   return (
-    <Card as={Link} to={`/listings/${listing.id}`} className="h-100 text-decoration-none shadow-sm">
+    <Card as={Link} to={compilePath(paths.listingById, { id: listing.id ?? '' })} className="h-100 text-decoration-none shadow-sm">
       {cover ? (
         <MediaView fileId={cover} className="listing-card-img card-img-top" alt={listing.name ?? ''} muted thumb />
       ) : (

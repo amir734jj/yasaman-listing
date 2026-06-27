@@ -12,6 +12,7 @@ import { useSeo } from '../../hooks/useSeo';
 import { listingJsonLd, breadcrumbJsonLd } from '../../hooks/structuredData';
 import { formatPrice, formatDate } from '../../utils/format';
 import { findCity } from '../../data/iranCities';
+import { compilePath, paths } from '../../routes';
 import MediaView from '../../components/media-view';
 import CityMap from '../../components/city-map';
 import './index.css';
@@ -61,7 +62,7 @@ export default function ListingDetailPage() {
           listingJsonLd(listing),
           breadcrumbJsonLd([
             { name: t('appName'), path: '/' },
-            { name: listing.name ?? '', path: `/listings/${listing.id}` },
+            { name: listing.name ?? '', path: compilePath(paths.listingById, { id: listing.id ?? '' }) },
           ]),
         ]
       : undefined,
@@ -96,12 +97,12 @@ export default function ListingDetailPage() {
   const remove = async () => {
     if (!window.confirm(t('detail.confirmDelete'))) return;
     await api.listing.listingsDelete(listing.id!);
-    navigate('/');
+    navigate(paths.root);
   };
 
   return (
     <div>
-      <Link to="/" className="link-secondary text-decoration-none">
+      <Link to={paths.root} className="link-secondary text-decoration-none">
         <FontAwesomeIcon icon={language === 'fa' ? faArrowRight : faArrowLeft} style={{ marginInlineEnd: '0.4rem' }} />
         {t('detail.back')}
       </Link>
@@ -119,7 +120,7 @@ export default function ListingDetailPage() {
         <span className="text-body-secondary">
           {t('listings.by')}{' '}
           {listing.ownerId ? (
-            <Link to={`/?owner=${listing.ownerId}`} className="link-primary fw-medium">
+            <Link to={`${paths.root}?owner=${listing.ownerId}`} className="link-primary fw-medium">
               {listing.ownerName}
             </Link>
           ) : (
@@ -175,7 +176,7 @@ export default function ListingDetailPage() {
 
       {canManage && (
         <div className="d-flex flex-wrap gap-2 mt-4">
-          <Link className="btn btn-outline-secondary" to={`/listings/${listing.id}/edit`}>
+          <Link className="btn btn-outline-secondary" to={compilePath(paths.editListing, { id: listing.id ?? '' })}>
             {t('detail.edit')}
           </Link>
           {status === ListingStatus.Available ? (

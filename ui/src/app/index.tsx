@@ -9,16 +9,17 @@ import ProfilePage from '../pages/profile';
 import LoginPage from '../pages/login';
 import RegisterPage from '../pages/register';
 import AdminUsersPage from '../pages/admin-users';
+import { paths } from '../routes';
 
 export default function App() {
   return (
     <Routes>
       <Route element={<Layout />}>
         <Route index element={<ListingsPage />} />
-        <Route path="listings/:id" element={<ListingDetailPage />} />
-        <Route path="about" element={<AboutPage />} />
+        <Route path={paths.listingById} element={<ListingDetailPage />} />
+        <Route path={paths.about} element={<AboutPage />} />
         <Route
-          path="create"
+          path={paths.create}
           element={
             <ProtectedRoute>
               <CreateListingPage />
@@ -26,7 +27,7 @@ export default function App() {
           }
         />
         <Route
-          path="listings/:id/edit"
+          path={paths.editListing}
           element={
             <ProtectedRoute>
               <CreateListingPage />
@@ -34,7 +35,7 @@ export default function App() {
           }
         />
         <Route
-          path="profile"
+          path={paths.profile}
           element={
             <ProtectedRoute>
               <ProfilePage />
@@ -42,16 +43,16 @@ export default function App() {
           }
         />
         <Route
-          path="admin/users"
+          path={paths.adminUsers}
           element={
             <ProtectedRoute requireAdmin>
               <AdminUsersPage />
             </ProtectedRoute>
           }
         />
-        <Route path="login" element={<LoginPage />} />
-        <Route path="register" element={<RegisterPage />} />
-        <Route path="*" element={<Navigate to="/" replace />} />
+        <Route path={paths.login} element={<LoginPage />} />
+        <Route path={paths.register} element={<RegisterPage />} />
+        <Route path={paths.any} element={<Navigate to={paths.root} replace />} />
       </Route>
     </Routes>
   );

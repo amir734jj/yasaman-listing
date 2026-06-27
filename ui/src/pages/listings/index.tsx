@@ -10,6 +10,7 @@ import ListingCard from '../../components/listing-card';
 import ListingsMap from '../../components/listings-map';
 import { useSeo } from '../../hooks/useSeo';
 import { websiteJsonLd, listingsItemListJsonLd } from '../../hooks/structuredData';
+import { paths } from '../../routes';
 
 export default function ListingsPage() {
   const { t } = useTranslation();
@@ -55,7 +56,7 @@ export default function ListingsPage() {
       </h1>
 
       {owner && (
-        <Link to="/" className="link-secondary d-inline-block mb-3">
+        <Link to={paths.root} className="link-secondary d-inline-block mb-3">
           {t('listings.allListings')}
         </Link>
       )}

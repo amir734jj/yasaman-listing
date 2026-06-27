@@ -11,6 +11,7 @@ import MediaView from '../../components/media-view';
 import CitySelect from '../../components/city-select';
 import CityMap from '../../components/city-map';
 import { findCity } from '../../data/iranCities';
+import { compilePath, paths } from '../../routes';
 import { useSeo } from '../../hooks/useSeo';
 
 export default function CreateListingPage() {
@@ -73,12 +74,12 @@ export default function CreateListingPage() {
       if (isEdit && id) {
         await api.listing.listingsUpdate(id, payload);
         await uploadFiles(id);
-        navigate(`/listings/${id}`);
+        navigate(compilePath(paths.listingById, { id }));
       } else {
         const res = await api.listing.listingsCreate(payload);
         const newId = res.data.id!;
         await uploadFiles(newId);
-        navigate(`/listings/${newId}`);
+        navigate(compilePath(paths.listingById, { id: newId }));
       }
     } catch {
       setError(t('common.error'));

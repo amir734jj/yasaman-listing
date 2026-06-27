@@ -5,6 +5,7 @@ import { useTranslation } from 'react-i18next';
 import { api } from '../../api/client';
 import { useAuthStore } from '../../store/authStore';
 import { useSeo } from '../../hooks/useSeo';
+import { paths } from '../../routes';
 
 export default function LoginPage() {
   const { t } = useTranslation();
@@ -24,7 +25,7 @@ export default function LoginPage() {
     try {
       const res = await api.account.accountLoginCreate({ email, password });
       setAuth(res.data);
-      navigate('/');
+      navigate(paths.root);
     } catch {
       setError(t('auth.invalidCredentials'));
     } finally {
@@ -61,7 +62,7 @@ export default function LoginPage() {
           </Button>
         </Form>
         <p className="text-body-secondary mt-3 mb-0">
-          <Link to="/register">{t('auth.needAccount')}</Link>
+          <Link to={paths.register}>{t('auth.needAccount')}</Link>
         </p>
       </Card.Body>
     </Card>

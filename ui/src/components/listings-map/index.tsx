@@ -5,6 +5,7 @@ import { type ListingDto } from '../../api/generated/Api';
 import { useLanguageStore } from '../../store/languageStore';
 import { formatPrice } from '../../utils/format';
 import { findCity } from '../../data/iranCities';
+import { compilePath, paths } from '../../routes';
 import {
   iranOutline,
   projectToView,
@@ -109,7 +110,7 @@ export default function ListingsMap({ listings }: { listings: ListingDto[] }) {
             <ul className="list-unstyled mb-0">
               {active.listings.map((l) => (
                 <li key={l.id} className="mb-1">
-                  <Link to={`/listings/${l.id}`} className="text-decoration-none">
+                  <Link to={compilePath(paths.listingById, { id: l.id ?? '' })} className="text-decoration-none">
                     {l.name}
                     <span className="text-body-secondary ms-2">
                       {formatPrice(l.price ?? '', language)}

@@ -6,6 +6,7 @@ import { faGlobe, faMoon, faSun } from '@fortawesome/free-solid-svg-icons';
 import { useAuthStore } from '../../store/authStore';
 import { useThemeStore } from '../../store/themeStore';
 import { useLanguageStore } from '../../store/languageStore';
+import { paths } from '../../routes';
 
 export default function AppNavbar() {
   const { t } = useTranslation();
@@ -21,36 +22,31 @@ export default function AppNavbar() {
 
   const handleLogout = () => {
     logout();
-    navigate('/');
+    navigate(paths.root);
   };
 
   return (
     <Navbar expand="md" bg="body-tertiary" className="border-bottom shadow-sm">
       <Container>
-        <Navbar.Brand as={Link} to="/">
+        <Navbar.Brand as={Link} to={paths.root}>
           {t('appName')}
         </Navbar.Brand>
         <Navbar.Toggle aria-controls="main-nav" />
         <Navbar.Collapse id="main-nav">
           <Nav className="me-auto">
-            <Nav.Link as={Link} to="/">
+            <Nav.Link as={Link} to={paths.root}>
               {t('nav.listings')}
             </Nav.Link>
-            <Nav.Link as={Link} to="/about">
+            <Nav.Link as={Link} to={paths.about}>
               {t('nav.about')}
             </Nav.Link>
             {token && (
-              <Nav.Link as={Link} to="/create">
+              <Nav.Link as={Link} to={paths.create}>
                 {t('nav.create')}
               </Nav.Link>
             )}
-            {token && (
-              <Nav.Link as={Link} to="/profile">
-                {t('nav.profile')}
-              </Nav.Link>
-            )}
             {isAdmin && (
-              <Nav.Link as={Link} to="/admin/users">
+              <Nav.Link as={Link} to={paths.adminUsers}>
                 {t('admin.users')}
               </Nav.Link>
             )}
@@ -84,22 +80,31 @@ export default function AppNavbar() {
               )}
             </Button>
             {token ? (
-              <Button variant="outline-primary" size="sm" onClick={handleLogout}>
-                {t('nav.logout')}
-              </Button>
+              <>
+                <Link
+                  to={paths.profile}
+                  className={`btn btn-outline-secondary btn-sm${pathname === paths.profile ? ' active' : ''}`}
+                  aria-current={pathname === paths.profile ? 'page' : undefined}
+                >
+                  {t('nav.profile')}
+                </Link>
+                <Button variant="outline-primary" size="sm" onClick={handleLogout}>
+                  {t('nav.logout')}
+                </Button>
+              </>
             ) : (
               <>
                 <Link
-                  to="/login"
-                  className={`btn btn-outline-primary btn-sm${pathname === '/login' ? ' active' : ''}`}
-                  aria-current={pathname === '/login' ? 'page' : undefined}
+                  to={paths.login}
+                  className={`btn btn-outline-primary btn-sm${pathname === paths.login ? ' active' : ''}`}
+                  aria-current={pathname === paths.login ? 'page' : undefined}
                 >
                   {t('nav.login')}
                 </Link>
                 <Link
-                  to="/register"
-                  className={`btn btn-outline-primary btn-sm${pathname === '/register' ? ' active' : ''}`}
-                  aria-current={pathname === '/register' ? 'page' : undefined}
+                  to={paths.register}
+                  className={`btn btn-outline-primary btn-sm${pathname === paths.register ? ' active' : ''}`}
+                  aria-current={pathname === paths.register ? 'page' : undefined}
                 >
                   {t('nav.register')}
                 </Link>

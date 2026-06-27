@@ -1,6 +1,7 @@
 import { Navigate } from 'react-router-dom';
 import type { ReactNode } from 'react';
 import { useAuthStore } from '../../store/authStore';
+import { paths } from '../../routes';
 
 interface ProtectedRouteProps {
   children: ReactNode;
@@ -12,10 +13,10 @@ export default function ProtectedRoute({ children, requireAdmin = false }: Prote
   const isAdmin = useAuthStore((s) => s.isAdmin());
 
   if (!token) {
-    return <Navigate to="/login" replace />;
+    return <Navigate to={paths.login} replace />;
   }
   if (requireAdmin && !isAdmin) {
-    return <Navigate to="/" replace />;
+    return <Navigate to={paths.root} replace />;
   }
   return <>{children}</>;
 }
