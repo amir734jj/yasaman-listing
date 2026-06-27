@@ -12,4 +12,7 @@ public static class ClaimsPrincipalExtensions
     }
 
     public static bool IsAdmin(this ClaimsPrincipal principal) => principal.IsInRole(Roles.Admin);
+
+    public static string? GetUsername(this ClaimsPrincipal principal) =>
+        principal.FindFirstValue(ClaimTypes.Email) ?? principal.Identity?.Name;
 }

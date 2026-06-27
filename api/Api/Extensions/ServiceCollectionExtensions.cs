@@ -29,10 +29,8 @@ public static class ServiceCollectionExtensions
 
         services.AddDbContext<DatabaseContext>(opt => opt.UseNpgsql(connectionString));
 
-        // EF repository (SimpleEfCoreRepository) — entity profiles live in the Data assembly.
         services.AddEfRepository<DatabaseContext>(x => x.Profile(typeof(DatabaseContext).Assembly));
 
-        // FluentMigrator owns the schema (EF Core is used only as the ORM / query layer).
         services.AddFluentMigratorCore()
             .ConfigureRunner(rb => rb
                 .AddPostgres()
@@ -43,11 +41,6 @@ public static class ServiceCollectionExtensions
         return services;
     }
 
-    /// <summary>
-    /// Resolves the Postgres connection string. Prefers the DATABASE_URL environment variable
-    /// (a <c>postgres://...</c> URL, parsed to a connection string); falls back to
-    /// ConnectionStrings:Postgres for local development.
-    /// </summary>
     private static string ResolveConnectionString(IConfiguration configuration)
     {
         var databaseUrl = configuration.GetValue<string>("DATABASE_URL");
@@ -117,8 +110,6 @@ public static class ServiceCollectionExtensions
 
     public static IServiceCollection AddApplicationServices(this IServiceCollection services, IConfiguration configuration)
     {
-        // Register all Logic services (IJwtService, IAccountService, IListingService,
-        // IUserService, IStorageService, ...) by scanning the Logic assembly with Scrutor.
         services.Scan(scan => scan
             .FromAssemblies(typeof(ListingService).Assembly)
             .AddClasses(classes => classes.Where(type => type.Namespace == "Logic.Services"))
@@ -129,12 +120,9 @@ public static class ServiceCollectionExtensions
 
         var s3Settings = configuration.GetSection("S3").Get<S3Settings>() ?? new S3Settings();
 
-        // Environment-variable overrides (deployment convention, e.g. DigitalOcean Spaces / AWS).
         s3Settings.AccessKey = configuration.GetValue<string>("SPACES_KEY") ?? s3Settings.AccessKey;
         s3Settings.SecretKey = configuration.GetValue<string>("SPACES_SECRET") ?? s3Settings.SecretKey;
         s3Settings.ServiceUrl = configuration.GetValue<string>("SPACES_ENDPOINT") ?? s3Settings.ServiceUrl;
-        s3Settings.BucketName = configuration.GetValue<string>("SPACES_BUCKET") ?? s3Settings.BucketName;
-        s3Settings.Region = configuration.GetValue<string>("SPACES_REGION") ?? s3Settings.Region;
 
         services.AddSingleton(s3Settings);
 
@@ -144,8 +132,6 @@ public static class ServiceCollectionExtensions
             {
                 ForcePathStyle = true,
                 RetryMode = RequestRetryMode.Standard,
-                // Required for S3-compatible providers (DigitalOcean Spaces, Cloudflare R2) — the SDK's
-                // default checksum behaviour adds headers they reject.
                 RequestChecksumCalculation = RequestChecksumCalculation.WHEN_REQUIRED,
                 ResponseChecksumValidation = ResponseChecksumValidation.WHEN_REQUIRED
             };
@@ -153,6 +139,11 @@ public static class ServiceCollectionExtensions
             if (!string.IsNullOrWhiteSpace(s3Settings.ServiceUrl))
             {
                 config.ServiceURL = s3Settings.ServiceUrl;
+
+                if (!string.IsNullOrWhiteSpace(s3Settings.Region))
+                {
+                    config.AuthenticationRegion = s3Settings.Region;
+                }
             }
             else if (!string.IsNullOrWhiteSpace(s3Settings.Region))
             {

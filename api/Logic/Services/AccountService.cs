@@ -32,8 +32,7 @@ public class AccountService : IAccountService
         {
             UserName = request.Email,
             Email = request.Email,
-            DisplayName = request.DisplayName,
-            // Accounts are active immediately — no email activation step is required.
+            DisplayName = string.IsNullOrWhiteSpace(request.DisplayName) ? request.Email : request.DisplayName,
             EmailConfirmed = true,
             Enabled = true
         };
