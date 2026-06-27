@@ -26,7 +26,7 @@ public class FileController : ControllerBase
 
     [HttpGet("{fileId:guid}")]
     [AllowAnonymous]
-    public async Task<IActionResult> Get(Guid fileId, [FromQuery] bool thumb, CancellationToken cancellationToken)
+    public async Task<IActionResult> Get(Guid fileId, [FromQuery] string? thumb, CancellationToken cancellationToken)
     {
         var file = await _storage.GetAsync(fileId, cancellationToken);
         if (file is null)
@@ -34,7 +34,10 @@ public class FileController : ControllerBase
             return NotFound();
         }
 
-        if (thumb && file.ContentType.StartsWith("image/", StringComparison.OrdinalIgnoreCase)
+        // Accept any truthy value ("1", "true") so callers aren't tied to bool's exact wire format.
+        var wantThumbnail = thumb is "1" or "true" or "True";
+
+        if (wantThumbnail && file.ContentType.StartsWith("image/", StringComparison.OrdinalIgnoreCase)
             && !file.ContentType.Contains("svg", StringComparison.OrdinalIgnoreCase)
             && !file.ContentType.Contains("gif", StringComparison.OrdinalIgnoreCase))
         {
