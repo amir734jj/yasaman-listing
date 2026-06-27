@@ -6,6 +6,8 @@ import { faMagnifyingGlass } from '@fortawesome/free-solid-svg-icons';
 import { api } from '../../api/client';
 import { type ListingDto, ListingSortBy } from '../../api/generated/Api';
 import ListingCard from '../../components/listing-card';
+import { useSeo } from '../../hooks/useSeo';
+import { websiteJsonLd, listingsItemListJsonLd } from '../../hooks/structuredData';
 
 export default function ListingsPage() {
   const { t } = useTranslation();
@@ -13,6 +15,12 @@ export default function ListingsPage() {
   const [sortBy, setSortBy] = useState<ListingSortBy>(ListingSortBy.MostRecent);
   const [items, setItems] = useState<ListingDto[]>([]);
   const [loading, setLoading] = useState(true);
+
+  useSeo({
+    title: t('listings.title'),
+    description: t('seo.tagline'),
+    jsonLd: items.length ? [websiteJsonLd(), listingsItemListJsonLd(items)] : websiteJsonLd(),
+  });
 
   useEffect(() => {
     const handle = setTimeout(async () => {

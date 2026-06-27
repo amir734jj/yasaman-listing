@@ -18,6 +18,7 @@ public class ListingDto
     public string Description { get; set; } = string.Empty;
     public string Location { get; set; } = string.Empty;
     public decimal Price { get; set; }
+    public List<string> Tags { get; set; } = new();
     public ListingStatus Status { get; set; }
     public DateTimeOffset? SoldAt { get; set; }
     public DateTimeOffset CreatedAt { get; set; }
@@ -39,6 +40,8 @@ public class CreateListingRequest
 
     [Range(0, 1_000_000_000)]
     public decimal Price { get; set; }
+
+    public List<string> Tags { get; set; } = new();
 }
 
 public class UpdateListingRequest
@@ -54,6 +57,8 @@ public class UpdateListingRequest
 
     [Range(0, 1_000_000_000)]
     public decimal Price { get; set; }
+
+    public List<string> Tags { get; set; } = new();
 }
 
 public enum ListingSortBy

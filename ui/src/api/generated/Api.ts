@@ -60,6 +60,7 @@ export interface CreateListingRequest {
    * @max 1000000000
    */
   price?: number;
+  tags?: string[] | null;
 }
 
 export interface ListingDto {
@@ -70,6 +71,7 @@ export interface ListingDto {
   location?: string | null;
   /** @format double */
   price?: number;
+  tags?: string[] | null;
   status?: ListingStatus;
   /** @format date-time */
   soldAt?: string | null;
@@ -143,6 +145,7 @@ export interface UpdateListingRequest {
    * @max 1000000000
    */
   price?: number;
+  tags?: string[] | null;
 }
 
 export interface UserDto {

@@ -4,9 +4,11 @@ import { useTranslation } from 'react-i18next';
 import { api } from '../../api/client';
 import type { UserDto } from '../../api/generated/Api';
 import { useAuthStore } from '../../store/authStore';
+import { useSeo } from '../../hooks/useSeo';
 
 export default function AdminUsersPage() {
   const { t } = useTranslation();
+  useSeo({ title: t('admin.manageUsers'), noindex: true });
   const currentUserId = useAuthStore((s) => s.userId);
   const [users, setUsers] = useState<UserDto[]>([]);
   const [loading, setLoading] = useState(true);

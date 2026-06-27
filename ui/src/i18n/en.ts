@@ -53,6 +53,9 @@ export const en = {
     description: 'Description',
     location: 'Location',
     price: 'Price',
+    tags: 'Tags',
+    tagsPlaceholder: 'Add a tag...',
+    tagsHint: 'Press Enter or comma to add a tag.',
     media: 'Photos & videos',
     addMedia: 'Add photo or video',
     dropzoneHint: 'Drag & drop photos or videos here, or click to browse',
@@ -87,6 +90,9 @@ export const en = {
     loading: 'Loading...',
     error: 'Something went wrong.',
     required: 'This field is required.',
+  },
+  seo: {
+    tagline: 'Browse, search and post local listings for sale on Yasaman Listing.',
   },
   admin: {
     users: 'Users',

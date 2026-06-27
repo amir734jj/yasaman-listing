@@ -4,9 +4,11 @@ import { Card, Form, Button, Alert } from 'react-bootstrap';
 import { useTranslation } from 'react-i18next';
 import { api } from '../../api/client';
 import { useAuthStore } from '../../store/authStore';
+import { useSeo } from '../../hooks/useSeo';
 
 export default function RegisterPage() {
   const { t } = useTranslation();
+  useSeo({ title: t('auth.registerTitle'), noindex: true });
   const navigate = useNavigate();
   const setAuth = useAuthStore((s) => s.setAuth);
 

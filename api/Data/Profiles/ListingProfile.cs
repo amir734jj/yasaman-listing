@@ -12,6 +12,7 @@ public class ListingProfile : EntityProfile<Listing>
         Map(x => x.Description);
         Map(x => x.Location);
         Map(x => x.Price);
+        Map(x => x.Tags);
         Map(x => x.Status);
         Map(x => x.SoldAt);
         Map(x => x.CreatedAt);

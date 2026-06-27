@@ -20,6 +20,11 @@ public class Listing : IEntity
 
     public decimal Price { get; set; }
 
+    /// <summary>
+    /// Optional free-form tags (stored as a JSON array of strings in a jsonb column).
+    /// </summary>
+    public List<string> Tags { get; set; } = new();
+
     public ListingStatus Status { get; set; } = ListingStatus.Available;
 
     /// <summary>

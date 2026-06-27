@@ -1,4 +1,6 @@
+using System.Text.Json;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Models.Entities;
 
@@ -9,6 +11,17 @@ public sealed class ListingMapping : IEntityTypeConfiguration<Listing>
     public void Configure(EntityTypeBuilder<Listing> builder)
     {
         builder.Property(x => x.Price).HasPrecision(18, 2);
+
+        // Tags are persisted as a JSON array of strings in a jsonb column.
+        builder.Property(x => x.Tags)
+            .HasColumnType("jsonb")
+            .HasConversion(
+                v => JsonSerializer.Serialize(v, (JsonSerializerOptions?)null),
+                v => JsonSerializer.Deserialize<List<string>>(v, (JsonSerializerOptions?)null) ?? new List<string>())
+            .Metadata.SetValueComparer(new ValueComparer<List<string>>(
+                (a, b) => (a ?? new List<string>()).SequenceEqual(b ?? new List<string>()),
+                v => v == null ? 0 : v.Aggregate(0, (hash, item) => HashCode.Combine(hash, item.GetHashCode())),
+                v => v == null ? new List<string>() : v.ToList()));
 
         builder.HasIndex(x => x.Status);
         builder.HasIndex(x => x.CreatedAt);

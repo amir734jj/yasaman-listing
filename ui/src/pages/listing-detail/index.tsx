@@ -8,6 +8,8 @@ import { api } from '../../api/client';
 import { type ListingDto, ListingStatus, MediaType } from '../../api/generated/Api';
 import { useAuthStore } from '../../store/authStore';
 import { useLanguageStore } from '../../store/languageStore';
+import { useSeo } from '../../hooks/useSeo';
+import { listingJsonLd, breadcrumbJsonLd } from '../../hooks/structuredData';
 import './index.css';
 
 const statusVariant: Record<ListingStatus, string> = {
@@ -44,6 +46,22 @@ export default function ListingDetailPage() {
     load();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]);
+
+  useSeo({
+    title: listing?.name ?? t('listings.title'),
+    description: listing?.description?.slice(0, 160) || t('seo.tagline'),
+    image: listing?.media?.find((m) => m.type === MediaType.Image)?.url ?? undefined,
+    type: 'article',
+    jsonLd: listing
+      ? [
+          listingJsonLd(listing),
+          breadcrumbJsonLd([
+            { name: t('appName'), path: '/' },
+            { name: listing.name ?? '', path: `/listings/${listing.id}` },
+          ]),
+        ]
+      : undefined,
+  });
 
   if (loading) {
     return (
@@ -100,6 +118,16 @@ export default function ListingDetailPage() {
 
       {status === ListingStatus.Sold && (
         <p className="text-body-secondary mt-2">{t('detail.soldNotice')}</p>
+      )}
+
+      {listing.tags && listing.tags.length > 0 && (
+        <div className="d-flex flex-wrap gap-1 mt-2">
+          {listing.tags.map((tag) => (
+            <Badge key={tag} bg="secondary" className="fw-normal">
+              {tag}
+            </Badge>
+          ))}
+        </div>
       )}
 
       {listing.media && listing.media.length > 0 && (

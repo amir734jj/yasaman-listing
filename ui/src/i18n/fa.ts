@@ -55,6 +55,9 @@ export const fa: TranslationSchema = {
     description: 'توضیحات',
     location: 'موقعیت',
     price: 'قیمت',
+    tags: 'برچسب‌ها',
+    tagsPlaceholder: 'افزودن برچسب...',
+    tagsHint: 'برای افزودن برچسب Enter یا کاما را بزنید.',
     media: 'عکس‌ها و ویدیوها',
     addMedia: 'افزودن عکس یا ویدیو',
     dropzoneHint: 'عکس‌ها یا ویدیوها را اینجا بکشید و رها کنید، یا برای انتخاب کلیک کنید',
@@ -89,6 +92,9 @@ export const fa: TranslationSchema = {
     loading: 'در حال بارگذاری...',
     error: 'خطایی رخ داد.',
     required: 'این فیلد الزامی است.',
+  },
+  seo: {
+    tagline: 'جستجو، مرور و ثبت آگهی‌های فروش محلی در یاسمن لیستینگ.',
   },
   admin: {
     users: 'کاربران',

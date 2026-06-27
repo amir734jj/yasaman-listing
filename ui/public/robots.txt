@@ -1,0 +1,10 @@
+User-agent: *
+Allow: /
+
+# Keep account and admin screens out of search results.
+Disallow: /login
+Disallow: /register
+Disallow: /create
+Disallow: /admin
+
+Sitemap: /sitemap.xml

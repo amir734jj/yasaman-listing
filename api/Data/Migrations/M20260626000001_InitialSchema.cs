@@ -72,6 +72,7 @@ public class M20260626000001_InitialSchema : Migration
             .WithColumn("Description").AsString(4000).NotNullable()
             .WithColumn("Location").AsString(300).NotNullable()
             .WithColumn("Price").AsDecimal(18, 2).NotNullable()
+            .WithColumn("Tags").AsCustom("jsonb").NotNullable().WithDefaultValue("[]")
             .WithColumn("Status").AsInt32().NotNullable()
             .WithColumn("SoldAt").AsDateTimeOffset().Nullable()
             .WithColumn("CreatedAt").AsDateTimeOffset().NotNullable()

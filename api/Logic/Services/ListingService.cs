@@ -106,6 +106,7 @@ public class ListingService : IListingService
             Description = request.Description,
             Location = request.Location,
             Price = request.Price,
+            Tags = request.Tags ?? new(),
             Status = ListingStatus.Available,
             OwnerId = ownerId,
             CreatedAt = DateTimeOffset.UtcNow,
@@ -128,6 +129,7 @@ public class ListingService : IListingService
             x.Description = request.Description;
             x.Location = request.Location;
             x.Price = request.Price;
+            x.Tags = request.Tags ?? new();
             x.UpdatedAt = DateTimeOffset.UtcNow;
         });
 
@@ -266,6 +268,7 @@ public class ListingService : IListingService
         Description = listing.Description,
         Location = listing.Location,
         Price = listing.Price,
+        Tags = listing.Tags,
         Status = listing.Status,
         SoldAt = listing.SoldAt,
         CreatedAt = listing.CreatedAt,

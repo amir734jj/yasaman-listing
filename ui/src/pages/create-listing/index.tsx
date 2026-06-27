@@ -6,17 +6,21 @@ import { api } from '../../api/client';
 import type { ListingMediaDto } from '../../api/generated/Api';
 import { MediaType } from '../../api/generated/Api';
 import FileDropzone from '../../components/file-dropzone';
+import TagsInput from '../../components/tags-input';
+import { useSeo } from '../../hooks/useSeo';
 
 export default function CreateListingPage() {
   const { id } = useParams<{ id: string }>();
   const isEdit = !!id;
   const navigate = useNavigate();
   const { t } = useTranslation();
+  useSeo({ title: isEdit ? t('create.editTitle') : t('create.title'), noindex: true });
 
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   const [location, setLocation] = useState('');
   const [price, setPrice] = useState('');
+  const [tags, setTags] = useState<string[]>([]);
   const [files, setFiles] = useState<File[]>([]);
   const [existingMedia, setExistingMedia] = useState<ListingMediaDto[]>([]);
   const [busy, setBusy] = useState(false);
@@ -30,6 +34,7 @@ export default function CreateListingPage() {
       setDescription(l.description ?? '');
       setLocation(l.location ?? '');
       setPrice(String(l.price ?? ''));
+      setTags(l.tags ?? []);
       setExistingMedia(l.media ?? []);
     });
   }, [id, isEdit]);
@@ -50,6 +55,7 @@ export default function CreateListingPage() {
         description,
         location,
         price: Number(price) || 0,
+        tags,
       };
 
       if (isEdit && id) {
@@ -121,6 +127,12 @@ export default function CreateListingPage() {
             onChange={(e) => setPrice(e.target.value)}
             required
           />
+        </Form.Group>
+
+        <Form.Group className="mb-3">
+          <Form.Label>{t('create.tags')}</Form.Label>
+          <TagsInput tags={tags} onTagsChange={setTags} />
+          <Form.Text className="text-body-secondary">{t('create.tagsHint')}</Form.Text>
         </Form.Group>
 
         {isEdit && existingMedia.length > 0 && (
