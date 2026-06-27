@@ -1,4 +1,5 @@
 import { useEffect, useState, type CSSProperties } from 'react';
+import ImageLoader from '../image-loader';
 import './index.css';
 
 type Kind = 'loading' | 'image' | 'video';
@@ -67,15 +68,23 @@ export default function MediaView({
     );
   }
 
+  // Thumbnails (cards) load the small compressed image directly for speed. Full images go through
+  // ImageLoader, which downloads with axios and shows a spinner while the (larger) file transfers.
+  if (thumb) {
+    return (
+      <img
+        src={`${url}?thumb=1`}
+        className={className}
+        style={style}
+        alt={alt ?? ''}
+        loading="lazy"
+        decoding="async"
+        onClick={onClick}
+      />
+    );
+  }
+
   return (
-    <img
-      src={thumb ? `${url}?thumb=1` : url}
-      className={className}
-      style={style}
-      alt={alt ?? ''}
-      loading="lazy"
-      decoding="async"
-      onClick={onClick}
-    />
+    <ImageLoader src={url} alt={alt} className={className} style={style} onClick={onClick} />
   );
 }

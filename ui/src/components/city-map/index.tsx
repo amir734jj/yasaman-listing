@@ -1,4 +1,5 @@
 import { useTranslation } from 'react-i18next';
+import { useIsDesktop } from '../../hooks/useIsDesktop';
 import './index.css';
 
 interface CityMapProps {
@@ -7,10 +8,29 @@ interface CityMapProps {
   name: string;
 }
 
-/** Fully-local location card. Renders no remote tiles or external assets. */
+/**
+ * Shows an interactive OpenStreetMap tile view on desktop, and a lightweight local card (no remote
+ * tiles) on mobile to save data on slow connections.
+ */
 export default function CityMap({ lat, lon, name }: CityMapProps) {
   const { t } = useTranslation();
+  const isDesktop = useIsDesktop();
   const osmUrl = `https://www.openstreetmap.org/?mlat=${lat}&mlon=${lon}#map=12/${lat}/${lon}`;
+
+  if (isDesktop) {
+    const d = 0.05;
+    const bbox = [lon - d, lat - d, lon + d, lat + d].map((n) => n.toFixed(5)).join('%2C');
+    const embed = `https://www.openstreetmap.org/export/embed.html?bbox=${bbox}&layer=mapnik&marker=${lat}%2C${lon}`;
+    return (
+      <iframe
+        title={name}
+        src={embed}
+        className="city-map-osm"
+        loading="lazy"
+        referrerPolicy="no-referrer-when-downgrade"
+      />
+    );
+  }
 
   return (
     <div className="city-map">
