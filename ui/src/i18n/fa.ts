@@ -51,6 +51,7 @@ export const fa: TranslationSchema = {
     confirmDelete: 'آیا از حذف این آگهی مطمئن هستید؟',
     close: 'بستن',
     posted: 'تاریخ ثبت',
+    openMap: 'باز کردن در OpenStreetMap',
   },
   create: {
     title: 'ثبت آگهی',

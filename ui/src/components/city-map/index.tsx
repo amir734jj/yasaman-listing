@@ -1,9 +1,4 @@
-import { useEffect, useRef } from 'react';
-import L from 'leaflet';
-import 'leaflet/dist/leaflet.css';
-import markerIcon from 'leaflet/dist/images/marker-icon.png';
-import markerIcon2x from 'leaflet/dist/images/marker-icon-2x.png';
-import markerShadow from 'leaflet/dist/images/marker-shadow.png';
+import { useTranslation } from 'react-i18next';
 import './index.css';
 
 interface CityMapProps {
@@ -12,44 +7,23 @@ interface CityMapProps {
   name: string;
 }
 
-// Use locally-bundled marker images instead of Leaflet's default CDN-relative URLs.
-const icon = L.icon({
-  iconUrl: markerIcon,
-  iconRetinaUrl: markerIcon2x,
-  shadowUrl: markerShadow,
-  iconSize: [25, 41],
-  iconAnchor: [12, 41],
-  popupAnchor: [1, -34],
-  shadowSize: [41, 41],
-});
-
-/** Renders an OpenStreetMap view with a locally-bundled Leaflet library (no CDN JS/CSS/icons). */
+/** Fully-local location card. Renders no remote tiles or external assets. */
 export default function CityMap({ lat, lon, name }: CityMapProps) {
-  const containerRef = useRef<HTMLDivElement>(null);
-  const mapRef = useRef<L.Map | null>(null);
+  const { t } = useTranslation();
+  const osmUrl = `https://www.openstreetmap.org/?mlat=${lat}&mlon=${lon}#map=12/${lat}/${lon}`;
 
-  useEffect(() => {
-    if (!containerRef.current || mapRef.current) return;
-
-    const map = L.map(containerRef.current, {
-      center: [lat, lon],
-      zoom: 12,
-      scrollWheelZoom: false,
-    });
-    mapRef.current = map;
-
-    L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      attribution: '&copy; OpenStreetMap contributors',
-      maxZoom: 19,
-    }).addTo(map);
-
-    L.marker([lat, lon], { icon, title: name }).addTo(map);
-
-    return () => {
-      map.remove();
-      mapRef.current = null;
-    };
-  }, [lat, lon, name]);
-
-  return <div ref={containerRef} className="city-map" role="img" aria-label={name} />;
+  return (
+    <div className="city-map">
+      <svg className="city-map-pin" viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5a2.5 2.5 0 1 1 0-5 2.5 2.5 0 0 1 0 5z" />
+      </svg>
+      <div className="city-map-name">{name}</div>
+      <div className="city-map-coords">
+        {lat.toFixed(4)}, {lon.toFixed(4)}
+      </div>
+      <a className="city-map-link" href={osmUrl} target="_blank" rel="noreferrer noopener">
+        {t('detail.openMap')}
+      </a>
+    </div>
+  );
 }

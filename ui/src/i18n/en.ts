@@ -49,6 +49,7 @@ export const en = {
     confirmDelete: 'Are you sure you want to delete this listing?',
     close: 'Close',
     posted: 'Posted',
+    openMap: 'Open in OpenStreetMap',
   },
   create: {
     title: 'Create a listing',
