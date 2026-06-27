@@ -11,6 +11,8 @@ interface MediaViewProps {
   controls?: boolean;
   muted?: boolean;
   style?: CSSProperties;
+  /** Request a small, compressed image from the server instead of the full file. */
+  thumb?: boolean;
 }
 
 /**
@@ -26,6 +28,7 @@ export default function MediaView({
   controls,
   muted,
   style,
+  thumb,
 }: MediaViewProps) {
   const url = `/api/files/${fileId}`;
   const [kind, setKind] = useState<Kind>('loading');
@@ -66,7 +69,7 @@ export default function MediaView({
 
   return (
     <img
-      src={url}
+      src={thumb ? `${url}?thumb=1` : url}
       className={className}
       style={style}
       alt={alt ?? ''}

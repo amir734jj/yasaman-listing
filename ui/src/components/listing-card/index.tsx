@@ -22,7 +22,7 @@ export default function ListingCard({ listing }: { listing: ListingDto }) {
   return (
     <Card as={Link} to={`/listings/${listing.id}`} className="h-100 text-decoration-none shadow-sm">
       {cover ? (
-        <MediaView fileId={cover} className="listing-card-img card-img-top" alt={listing.name ?? ''} muted />
+        <MediaView fileId={cover} className="listing-card-img card-img-top" alt={listing.name ?? ''} muted thumb />
       ) : (
         <div className="listing-card-img card-img-top" />
       )}
