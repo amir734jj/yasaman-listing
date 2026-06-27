@@ -64,7 +64,10 @@ app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
 
-app.UseSpa(_ => { });
+if (app.Environment.IsProduction())
+{
+    app.UseSpa(_ => { });
+}
 
 try
 {
