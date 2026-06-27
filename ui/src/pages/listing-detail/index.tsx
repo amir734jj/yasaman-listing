@@ -203,6 +203,7 @@ export default function ListingDetailPage() {
         onHide={() => setLightboxFileId(null)}
         size="xl"
         centered
+        dialogClassName="lightbox-dialog"
         contentClassName="lightbox-content"
       >
         <Button
