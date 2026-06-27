@@ -436,6 +436,8 @@ export class Api<
       query?: {
         search?: string;
         status?: ListingStatus;
+        /** @format uuid */
+        ownerId?: string;
         sortBy?: ListingSortBy;
         /**
          * @format int32

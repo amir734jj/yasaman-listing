@@ -29,6 +29,7 @@ public class ListingController : ControllerBase
     public async Task<ActionResult<PagedResult<ListingDto>>> Search(
         [FromQuery] string? search,
         [FromQuery] ListingStatus? status,
+        [FromQuery] Guid? ownerId,
         [FromQuery] ListingSortBy sortBy = ListingSortBy.MostRecent,
         [FromQuery] int page = 1,
         [FromQuery] int pageSize = 20,
@@ -38,6 +39,7 @@ public class ListingController : ControllerBase
         {
             Search = search,
             Status = status,
+            OwnerId = ownerId,
             SortBy = sortBy,
             Page = page,
             PageSize = pageSize

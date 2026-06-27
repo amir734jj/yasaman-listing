@@ -28,6 +28,8 @@ export const en = {
     location: 'Location',
     status: 'Status',
     by: 'by',
+    byOwner: 'Listings by {{name}}',
+    allListings: '← All listings',
     viewDetails: 'View details',
   },
   status: {

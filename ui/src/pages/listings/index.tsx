@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { Link, useSearchParams } from 'react-router-dom';
 import { Row, Col, Form, InputGroup, Spinner } from 'react-bootstrap';
 import { useTranslation } from 'react-i18next';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -11,10 +12,14 @@ import { websiteJsonLd, listingsItemListJsonLd } from '../../hooks/structuredDat
 
 export default function ListingsPage() {
   const { t } = useTranslation();
+  const [searchParams] = useSearchParams();
+  const owner = searchParams.get('owner');
   const [search, setSearch] = useState('');
   const [sortBy, setSortBy] = useState<ListingSortBy>(ListingSortBy.MostRecent);
   const [items, setItems] = useState<ListingDto[]>([]);
   const [loading, setLoading] = useState(true);
+
+  const ownerName = owner ? items[0]?.ownerName : null;
 
   useSeo({
     title: t('listings.title'),
@@ -28,6 +33,7 @@ export default function ListingsPage() {
       try {
         const res = await api.listing.listingsList({
           search: search || undefined,
+          ownerId: owner ?? undefined,
           sortBy,
           page: 1,
           pageSize: 50,
@@ -38,11 +44,19 @@ export default function ListingsPage() {
       }
     }, 250);
     return () => clearTimeout(handle);
-  }, [search, sortBy]);
+  }, [search, sortBy, owner]);
 
   return (
     <div>
-      <h1 className="h3 mb-3">{t('listings.title')}</h1>
+      <h1 className="h3 mb-3">
+        {owner ? t('listings.byOwner', { name: ownerName ?? '' }) : t('listings.title')}
+      </h1>
+
+      {owner && (
+        <Link to="/" className="link-secondary d-inline-block mb-3">
+          {t('listings.allListings')}
+        </Link>
+      )}
 
       <Row className="g-2 mb-4">
         <Col xs={12} md>

@@ -30,6 +30,8 @@ export const fa: TranslationSchema = {
     location: 'موقعیت',
     status: 'وضعیت',
     by: 'توسط',
+    byOwner: 'آگهی‌های {{name}}',
+    allListings: '← همه آگهی‌ها',
     viewDetails: 'مشاهده جزئیات',
   },
   status: {

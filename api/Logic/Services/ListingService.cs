@@ -44,6 +44,12 @@ public class ListingService : IListingService
                 x.Location.ToLower().Contains(term));
         }
 
+        if (request.OwnerId.HasValue)
+        {
+            var ownerId = request.OwnerId.Value;
+            filters.Add(x => x.OwnerId == ownerId);
+        }
+
         if (request.Status.HasValue)
         {
             var status = request.Status.Value;

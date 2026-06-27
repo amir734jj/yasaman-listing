@@ -64,6 +64,7 @@ public class ListingSearchRequest
 {
     public string? Search { get; set; }
     public ListingStatus? Status { get; set; }
+    public Guid? OwnerId { get; set; }
     public ListingSortBy SortBy { get; set; } = ListingSortBy.MostRecent;
     public int Page { get; set; } = 1;
     public int PageSize { get; set; } = 20;

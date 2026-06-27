@@ -114,7 +114,14 @@ export default function ListingDetailPage() {
           {t('listings.location')}: {listing.location}
         </span>
         <span className="text-body-secondary">
-          {t('listings.by')} {listing.ownerName}
+          {t('listings.by')}{' '}
+          {listing.ownerId ? (
+            <Link to={`/?owner=${listing.ownerId}`} className="link-primary fw-medium">
+              {listing.ownerName}
+            </Link>
+          ) : (
+            listing.ownerName
+          )}
         </span>
       </div>
 
