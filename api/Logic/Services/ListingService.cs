@@ -240,6 +240,11 @@ public class ListingService : IListingService
 
         if (!listing.MediaFileIds.Contains(fileId)) return false;
 
+        if (listing.MediaFileIds.Count <= 1)
+        {
+            throw new InvalidOperationException("A listing must have at least one photo or video.");
+        }
+
         await _storage.DeleteAsync(fileId, cancellationToken);
 
         await Listings().Update(listingId, x =>

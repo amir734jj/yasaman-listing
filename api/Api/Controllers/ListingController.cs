@@ -223,6 +223,10 @@ public class ListingController : ControllerBase
         {
             return Forbid();
         }
+        catch (InvalidOperationException ex)
+        {
+            return BadRequest(new { message = ex.Message });
+        }
     }
 
     [HttpPut("{id:guid}/media/order")]

@@ -89,12 +89,16 @@ export default function CreateListingPage() {
 
   const removeExisting = async (fileId: string) => {
     if (!id) return;
-    if (existingMedia.length <= 1 && files.length === 0) {
+    if (existingMedia.length <= 1) {
       setError(t('create.mediaRequired'));
       return;
     }
-    await api.listing.listingsMediaDelete(id, fileId);
-    setExistingMedia((prev) => prev.filter((m) => m !== fileId));
+    try {
+      await api.listing.listingsMediaDelete(id, fileId);
+      setExistingMedia((prev) => prev.filter((m) => m !== fileId));
+    } catch {
+      setError(t('common.error'));
+    }
   };
 
   const moveExisting = async (index: number, direction: -1 | 1) => {
