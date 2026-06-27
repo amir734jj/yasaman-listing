@@ -20,3 +20,18 @@ export function formatPrice(price: string | null | undefined, language: Language
 
   return value;
 }
+
+/**
+ * Formats a date in the active language. Farsi uses the Persian (Shamsi/Jalali) calendar
+ * with Persian digits; English uses the Gregorian calendar.
+ */
+export function formatDate(date: string | null | undefined, language: Language): string {
+  if (!date) return '';
+  const parsed = new Date(date);
+  if (Number.isNaN(parsed.getTime())) return '';
+  return new Intl.DateTimeFormat(language === 'fa' ? 'fa-IR' : 'en-US', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+  }).format(parsed);
+}

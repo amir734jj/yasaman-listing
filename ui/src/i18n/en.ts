@@ -48,6 +48,7 @@ export const en = {
     back: 'Back to listings',
     confirmDelete: 'Are you sure you want to delete this listing?',
     close: 'Close',
+    posted: 'Posted',
   },
   create: {
     title: 'Create a listing',

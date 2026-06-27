@@ -50,6 +50,7 @@ export const fa: TranslationSchema = {
     back: 'بازگشت به آگهی‌ها',
     confirmDelete: 'آیا از حذف این آگهی مطمئن هستید؟',
     close: 'بستن',
+    posted: 'تاریخ ثبت',
   },
   create: {
     title: 'ثبت آگهی',

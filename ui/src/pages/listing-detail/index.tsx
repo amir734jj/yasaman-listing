@@ -10,7 +10,7 @@ import { useAuthStore } from '../../store/authStore';
 import { useLanguageStore } from '../../store/languageStore';
 import { useSeo } from '../../hooks/useSeo';
 import { listingJsonLd, breadcrumbJsonLd } from '../../hooks/structuredData';
-import { formatPrice } from '../../utils/format';
+import { formatPrice, formatDate } from '../../utils/format';
 import { findCity } from '../../data/iranCities';
 import MediaView from '../../components/media-view';
 import CityMap from '../../components/city-map';
@@ -126,6 +126,11 @@ export default function ListingDetailPage() {
             listing.ownerName
           )}
         </span>
+        {listing.createdAt && (
+          <span className="text-body-secondary">
+            {t('detail.posted')}: {formatDate(listing.createdAt, language)}
+          </span>
+        )}
       </div>
 
       {status === ListingStatus.Sold && (
