@@ -25,10 +25,14 @@ public class S3StorageService : IStorageService
         var extension = Path.GetExtension(request.FileName);
         var key = $"{keyPrefix.Trim('/')}/{Guid.NewGuid():N}{extension}";
 
-        // S3-compatible providers reject the chunked STREAMING-AWS4-HMAC-SHA256-PAYLOAD signature
-        // used for forward-only streams. Spool the upload to a temp file (streamed to disk, not
-        // held in memory, auto-deleted on close) so the SDK gets a seekable stream and signs the
-        // payload normally.
+        // AWS SDK v4 signs uploads with the chunked STREAMING-AWS4-HMAC-SHA256-PAYLOAD signature
+        // by default, which most S3-compatible providers don't implement. Disabling payload
+        // signing (UNSIGNED-PAYLOAD) avoids it; the SDK only allows this over HTTPS.
+        var isHttps = string.IsNullOrEmpty(_settings.ServiceUrl)
+            || _settings.ServiceUrl.StartsWith("https", StringComparison.OrdinalIgnoreCase);
+
+        // PutObject needs a known Content-Length, so spool a forward-only stream to a temp file
+        // (streamed to disk, not held in memory, auto-deleted on close).
         Stream content = request.Content;
         FileStream? spooled = null;
         if (!content.CanSeek)
@@ -53,6 +57,7 @@ public class S3StorageService : IStorageService
                 Key = key,
                 InputStream = content,
                 ContentType = request.ContentType,
+                DisablePayloadSigning = isHttps,
                 AutoCloseStream = false
             }, cancellationToken);
         }
