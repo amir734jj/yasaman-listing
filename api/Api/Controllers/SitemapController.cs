@@ -1,4 +1,6 @@
-using System.Xml.Linq;
+using System.Text;
+using System.Xml;
+using System.Xml.Serialization;
 using Logic.Dtos.Listing;
 using Logic.Interfaces;
 using Microsoft.AspNetCore.Authorization;
@@ -14,7 +16,7 @@ namespace Api.Controllers;
 [AllowAnonymous]
 public class SitemapController : ControllerBase
 {
-    private static readonly XNamespace Ns = "http://www.sitemaps.org/schemas/sitemap/0.9";
+    private const string SitemapNamespace = "http://www.sitemaps.org/schemas/sitemap/0.9";
 
     private readonly IListingService _listingService;
     private readonly IConfiguration _configuration;
@@ -35,24 +37,61 @@ public class SitemapController : ControllerBase
             new ListingSearchRequest { Page = 1, PageSize = 5000 },
             cancellationToken);
 
-        var urls = new List<XElement>
+        var urlSet = new SitemapUrlSet();
+        urlSet.Urls.Add(new SitemapUrl
         {
-            new(Ns + "url",
-                new XElement(Ns + "loc", $"{siteUrl}/"),
-                new XElement(Ns + "changefreq", "hourly"),
-                new XElement(Ns + "priority", "1.0"))
-        };
+            Location = $"{siteUrl}/",
+            ChangeFrequency = "hourly",
+            Priority = "1.0"
+        });
+        urlSet.Urls.AddRange(listings.Items.Select(listing => new SitemapUrl
+        {
+            Location = $"{siteUrl}/listings/{listing.Id}",
+            LastModified = listing.CreatedAt.ToString("yyyy-MM-dd"),
+            ChangeFrequency = "daily"
+        }));
 
-        urls.AddRange(listings.Items.Select(listing =>
-            new XElement(Ns + "url",
-                new XElement(Ns + "loc", $"{siteUrl}/listings/{listing.Id}"),
-                new XElement(Ns + "lastmod", listing.CreatedAt.ToString("yyyy-MM-dd")),
-                new XElement(Ns + "changefreq", "daily"))));
-
-        var document = new XDocument(
-            new XDeclaration("1.0", "UTF-8", null),
-            new XElement(Ns + "urlset", urls));
-
-        return Content($"{document.Declaration}{Environment.NewLine}{document}", "application/xml");
+        return Content(Serialize(urlSet), "application/xml");
     }
+
+    private static string Serialize(SitemapUrlSet urlSet)
+    {
+        var serializer = new XmlSerializer(typeof(SitemapUrlSet));
+        var namespaces = new XmlSerializerNamespaces([new XmlQualifiedName(string.Empty, SitemapNamespace)]);
+
+        using var writer = new Utf8StringWriter();
+        using (var xmlWriter = XmlWriter.Create(writer, new XmlWriterSettings { Indent = true }))
+        {
+            serializer.Serialize(xmlWriter, urlSet, namespaces);
+        }
+
+        return writer.ToString();
+    }
+
+    private sealed class Utf8StringWriter : StringWriter
+    {
+        public override Encoding Encoding => Encoding.UTF8;
+    }
+}
+
+[XmlRoot("urlset", Namespace = "http://www.sitemaps.org/schemas/sitemap/0.9")]
+public class SitemapUrlSet
+{
+    [XmlElement("url")]
+    public List<SitemapUrl> Urls { get; set; } = [];
+}
+
+public class SitemapUrl
+{
+    [XmlElement("loc")]
+    public string Location { get; set; } = string.Empty;
+
+    [XmlElement("lastmod")]
+    public string? LastModified { get; set; }
+
+    [XmlElement("changefreq")]
+    public string? ChangeFrequency { get; set; }
+
+    [XmlElement("priority")]
+    public string? Priority { get; set; }
 }
