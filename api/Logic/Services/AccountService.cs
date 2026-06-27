@@ -89,6 +89,21 @@ public class AccountService : IAccountService
         return MapProfile(user);
     }
 
+    public async Task ChangePasswordAsync(Guid userId, ChangePasswordRequest request, CancellationToken cancellationToken = default)
+    {
+        var user = await _userManager.FindByIdAsync(userId.ToString());
+        if (user is null)
+        {
+            throw new InvalidOperationException("User not found.");
+        }
+
+        var result = await _userManager.ChangePasswordAsync(user, request.CurrentPassword, request.NewPassword);
+        if (!result.Succeeded)
+        {
+            throw new InvalidOperationException(string.Join(" ", result.Errors.Select(e => e.Description)));
+        }
+    }
+
     private static ProfileDto MapProfile(User user) => new()
     {
         Id = user.Id,

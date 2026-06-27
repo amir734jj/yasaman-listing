@@ -11,4 +11,6 @@ public interface IAccountService
     Task<ProfileDto?> GetProfileAsync(Guid userId, CancellationToken cancellationToken = default);
 
     Task<ProfileDto?> UpdateProfileAsync(Guid userId, UpdateProfileRequest request, CancellationToken cancellationToken = default);
+
+    Task ChangePasswordAsync(Guid userId, ChangePasswordRequest request, CancellationToken cancellationToken = default);
 }

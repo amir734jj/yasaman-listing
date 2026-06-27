@@ -136,6 +136,13 @@ export const fa: TranslationSchema = {
     save: 'ذخیره پروفایل',
     saving: 'در حال ذخیره...',
     saved: 'پروفایل به‌روزرسانی شد.',
+    changePassword: 'تغییر رمز عبور',
+    currentPassword: 'رمز عبور فعلی',
+    newPassword: 'رمز عبور جدید',
+    confirmNewPassword: 'تکرار رمز عبور جدید',
+    passwordMismatch: 'رمزهای عبور یکسان نیستند.',
+    passwordChanged: 'رمز عبور تغییر کرد.',
+    passwordError: 'تغییر رمز عبور ممکن نشد. رمز عبور فعلی را بررسی کنید.',
   },
   admin: {
     users: 'کاربران',

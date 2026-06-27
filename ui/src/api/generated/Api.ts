@@ -53,6 +53,12 @@ export interface UpdateProfileRequest {
   description?: string | null;
 }
 
+export interface ChangePasswordRequest {
+  currentPassword: string;
+  /** @minLength 6 */
+  newPassword: string;
+}
+
 export interface CreateListingRequest {
   /**
    * @minLength 1
@@ -420,6 +426,24 @@ export class Api<
         secure: true,
         type: ContentType.Json,
         format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Account
+     * @name AccountPasswordUpdate
+     * @request PUT:/api/account/password
+     * @secure
+     */
+    accountPasswordUpdate: (data: ChangePasswordRequest, params: RequestParams = {}) =>
+      this.request<void, any>({
+        path: `/api/account/password`,
+        method: "PUT",
+        body: data,
+        secure: true,
+        type: ContentType.Json,
         ...params,
       }),
   };

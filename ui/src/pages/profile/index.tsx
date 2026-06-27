@@ -17,6 +17,13 @@ export default function ProfilePage() {
   const [error, setError] = useState('');
   const [saved, setSaved] = useState(false);
 
+  const [currentPassword, setCurrentPassword] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [pwBusy, setPwBusy] = useState(false);
+  const [pwError, setPwError] = useState('');
+  const [pwSaved, setPwSaved] = useState(false);
+
   useEffect(() => {
     api.account.accountProfileList().then((res) => {
       setEmail(res.data.email ?? '');
@@ -40,6 +47,30 @@ export default function ProfilePage() {
       setError(t('common.error'));
     } finally {
       setBusy(false);
+    }
+  };
+
+  const handleChangePassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setPwError('');
+    setPwSaved(false);
+
+    if (newPassword !== confirmPassword) {
+      setPwError(t('profile.passwordMismatch'));
+      return;
+    }
+
+    setPwBusy(true);
+    try {
+      await api.account.accountPasswordUpdate({ currentPassword, newPassword });
+      setCurrentPassword('');
+      setNewPassword('');
+      setConfirmPassword('');
+      setPwSaved(true);
+    } catch {
+      setPwError(t('profile.passwordError'));
+    } finally {
+      setPwBusy(false);
     }
   };
 
@@ -79,6 +110,53 @@ export default function ProfilePage() {
 
         <Button variant="primary" type="submit" disabled={busy}>
           {busy ? t('profile.saving') : t('profile.save')}
+        </Button>
+      </Form>
+
+      <hr className="my-4" />
+
+      <h2 className="h5 mb-3">{t('profile.changePassword')}</h2>
+      <Form onSubmit={handleChangePassword}>
+        <Form.Group className="mb-3">
+          <Form.Label>{t('profile.currentPassword')}</Form.Label>
+          <Form.Control
+            type="password"
+            value={currentPassword}
+            onChange={(e) => setCurrentPassword(e.target.value)}
+            autoComplete="current-password"
+            required
+          />
+        </Form.Group>
+
+        <Form.Group className="mb-3">
+          <Form.Label>{t('profile.newPassword')}</Form.Label>
+          <Form.Control
+            type="password"
+            value={newPassword}
+            onChange={(e) => setNewPassword(e.target.value)}
+            autoComplete="new-password"
+            minLength={6}
+            required
+          />
+        </Form.Group>
+
+        <Form.Group className="mb-3">
+          <Form.Label>{t('profile.confirmNewPassword')}</Form.Label>
+          <Form.Control
+            type="password"
+            value={confirmPassword}
+            onChange={(e) => setConfirmPassword(e.target.value)}
+            autoComplete="new-password"
+            minLength={6}
+            required
+          />
+        </Form.Group>
+
+        {pwError && <Alert variant="danger">{pwError}</Alert>}
+        {pwSaved && <Alert variant="success">{t('profile.passwordChanged')}</Alert>}
+
+        <Button variant="primary" type="submit" disabled={pwBusy}>
+          {pwBusy ? t('profile.saving') : t('profile.changePassword')}
         </Button>
       </Form>
     </div>

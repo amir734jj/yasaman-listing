@@ -134,6 +134,13 @@ export const en = {
     save: 'Save profile',
     saving: 'Saving...',
     saved: 'Profile updated.',
+    changePassword: 'Change password',
+    currentPassword: 'Current password',
+    newPassword: 'New password',
+    confirmNewPassword: 'Confirm new password',
+    passwordMismatch: 'Passwords do not match.',
+    passwordChanged: 'Password changed.',
+    passwordError: 'Could not change password. Check your current password.',
   },
   admin: {
     users: 'Users',
