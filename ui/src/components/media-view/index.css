@@ -1,0 +1,25 @@
+.media-loading {
+  background: var(--bs-secondary-bg);
+  position: relative;
+  overflow: hidden;
+}
+
+.media-loading::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.15),
+    transparent
+  );
+  transform: translateX(-100%);
+  animation: media-shimmer 1.2s infinite;
+}
+
+@keyframes media-shimmer {
+  100% {
+    transform: translateX(100%);
+  }
+}

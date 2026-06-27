@@ -4,6 +4,7 @@ import ProtectedRoute from '../components/protected-route';
 import ListingsPage from '../pages/listings';
 import ListingDetailPage from '../pages/listing-detail';
 import CreateListingPage from '../pages/create-listing';
+import ProfilePage from '../pages/profile';
 import LoginPage from '../pages/login';
 import RegisterPage from '../pages/register';
 import AdminUsersPage from '../pages/admin-users';
@@ -27,6 +28,14 @@ export default function App() {
           element={
             <ProtectedRoute>
               <CreateListingPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="profile"
+          element={
+            <ProtectedRoute>
+              <ProfilePage />
             </ProtectedRoute>
           }
         />

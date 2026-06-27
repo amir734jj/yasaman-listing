@@ -5,11 +5,13 @@ import { useTranslation } from 'react-i18next';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faArrowLeft, faArrowRight, faXmark } from '@fortawesome/free-solid-svg-icons';
 import { api } from '../../api/client';
-import { type ListingDto, ListingStatus, MediaType } from '../../api/generated/Api';
+import { type ListingDto, ListingStatus } from '../../api/generated/Api';
 import { useAuthStore } from '../../store/authStore';
 import { useLanguageStore } from '../../store/languageStore';
 import { useSeo } from '../../hooks/useSeo';
 import { listingJsonLd, breadcrumbJsonLd } from '../../hooks/structuredData';
+import { formatPrice } from '../../utils/format';
+import MediaView from '../../components/media-view';
 import './index.css';
 
 const statusVariant: Record<ListingStatus, string> = {
@@ -29,7 +31,7 @@ export default function ListingDetailPage() {
 
   const [listing, setListing] = useState<ListingDto | null>(null);
   const [loading, setLoading] = useState(true);
-  const [lightboxUrl, setLightboxUrl] = useState<string | null>(null);
+  const [lightboxFileId, setLightboxFileId] = useState<string | null>(null);
 
   const load = async () => {
     if (!id) return;
@@ -50,7 +52,7 @@ export default function ListingDetailPage() {
   useSeo({
     title: listing?.name ?? t('listings.title'),
     description: listing?.description?.slice(0, 160) || t('seo.tagline'),
-    image: listing?.media?.find((m) => m.type === MediaType.Image)?.url ?? undefined,
+    image: listing?.media?.[0] ? `/api/files/${listing.media[0]}` : undefined,
     type: 'article',
     jsonLd: listing
       ? [
@@ -107,7 +109,7 @@ export default function ListingDetailPage() {
       </div>
 
       <div className="d-flex flex-wrap gap-3 align-items-center mt-2">
-        <span className="fs-4 fw-bold text-primary">${listing.price?.toLocaleString()}</span>
+        <span className="fs-4 fw-bold text-primary">{formatPrice(listing.price, language)}</span>
         <span className="text-body-secondary">
           {t('listings.location')}: {listing.location}
         </span>
@@ -132,20 +134,15 @@ export default function ListingDetailPage() {
 
       {listing.media && listing.media.length > 0 && (
         <Row className="g-2 my-3">
-          {listing.media.map((m) => (
-            <Col xs={12} sm={6} md={4} key={m.id}>
-              {m.type === MediaType.Video ? (
-                <video src={m.url ?? undefined} controls className="gallery-img" preload="none" />
-              ) : (
-                <img
-                  src={m.url ?? undefined}
-                  alt={listing.name ?? ''}
-                  className="gallery-img gallery-img-clickable"
-                  loading="lazy"
-                  decoding="async"
-                  onClick={() => m.url && setLightboxUrl(m.url)}
-                />
-              )}
+          {listing.media.map((fileId) => (
+            <Col xs={12} sm={6} md={4} key={fileId}>
+              <MediaView
+                fileId={fileId}
+                className="gallery-img gallery-img-clickable"
+                alt={listing.name ?? ''}
+                controls
+                onClick={() => setLightboxFileId(fileId)}
+              />
             </Col>
           ))}
         </Row>
@@ -180,8 +177,8 @@ export default function ListingDetailPage() {
       )}
 
       <Modal
-        show={!!lightboxUrl}
-        onHide={() => setLightboxUrl(null)}
+        show={!!lightboxFileId}
+        onHide={() => setLightboxFileId(null)}
         size="xl"
         centered
         contentClassName="lightbox-content"
@@ -190,12 +187,17 @@ export default function ListingDetailPage() {
           variant="light"
           className="lightbox-close"
           aria-label={t('detail.close')}
-          onClick={() => setLightboxUrl(null)}
+          onClick={() => setLightboxFileId(null)}
         >
           <FontAwesomeIcon icon={faXmark} />
         </Button>
-        {lightboxUrl && (
-          <img src={lightboxUrl} alt={listing.name ?? ''} className="lightbox-img" />
+        {lightboxFileId && (
+          <MediaView
+            fileId={lightboxFileId}
+            alt={listing.name ?? ''}
+            className="lightbox-img"
+            controls
+          />
         )}
       </Modal>
     </div>

@@ -2,6 +2,7 @@ using System.Linq.Expressions;
 using EfCoreRepository.Extensions;
 using EfCoreRepository.Interfaces;
 using EfCoreRepository.Models;
+using Logic.Constants;
 using Logic.Dtos.Common;
 using Logic.Dtos.Listing;
 using Logic.Dtos.Storage;
@@ -16,10 +17,6 @@ public class ListingService : IListingService
 {
     private const int MaxMediaPerListing = 10;
 
-    // Media is served through the FileController proxy (api/files/{key}); the client never
-    // receives a raw bucket URL, and the URL is derived from the stored object key.
-    private const string MediaPathPrefix = "/api/files";
-
     private readonly IEfRepository _repository;
     private readonly IStorageService _storage;
 
@@ -30,8 +27,6 @@ public class ListingService : IListingService
     }
 
     private IBasicCrud<Listing> Listings() => _repository.For<Listing>();
-
-    private IBasicCrud<ListingMedia> Media() => _repository.For<ListingMedia>();
 
     public async Task<PagedResult<ListingDto>> SearchAsync(ListingSearchRequest request, CancellationToken cancellationToken = default)
     {
@@ -190,64 +185,63 @@ public class ListingService : IListingService
         if (listing is null) return false;
         EnsureOwnerOrAdmin(listing, userId, isAdmin);
 
-        foreach (var media in listing.Media)
+        foreach (var fileId in listing.MediaFileIds)
         {
-            await _storage.DeleteAsync(media.StorageKey, cancellationToken);
+            await _storage.DeleteAsync(fileId, cancellationToken);
         }
 
         await Listings().Delete(id);
         return true;
     }
 
-    public async Task<ListingMediaDto?> AddMediaAsync(Guid id, Guid userId, bool isAdmin, UploadFileRequest file, CancellationToken cancellationToken = default)
+    public async Task<Guid?> AddMediaAsync(Guid id, Guid userId, bool isAdmin, UploadFileRequest file, CancellationToken cancellationToken = default)
     {
         var listing = await Listings().Get(id);
         if (listing is null) return null;
         EnsureOwnerOrAdmin(listing, userId, isAdmin);
 
-        if (listing.Media.Count >= MaxMediaPerListing)
+        if (listing.MediaFileIds.Count >= MaxMediaPerListing)
         {
             throw new InvalidOperationException($"A listing can have at most {MaxMediaPerListing} media files.");
         }
 
-        var type = file.ContentType.StartsWith("video", StringComparison.OrdinalIgnoreCase)
-            ? MediaType.Video
-            : MediaType.Image;
+        // Attach listing info and the file's MIME type as object metadata. Free-text values are
+        // URL-encoded so non-ASCII (e.g. Farsi) names are valid S3 metadata.
+        file.Metadata[MediaMetadataKeys.ListingId] = id.ToString();
+        file.Metadata[MediaMetadataKeys.ListingName] = Uri.EscapeDataString(listing.Name);
+        file.Metadata[MediaMetadataKeys.OwnerId] = listing.OwnerId.ToString();
+        file.Metadata[MediaMetadataKeys.UploadedBy] = userId.ToString();
+        file.Metadata[MediaMetadataKeys.UploadedAt] = DateTimeOffset.UtcNow.ToString("o");
+        file.Metadata[MediaMetadataKeys.ContentType] = file.ContentType;
+        file.Metadata[MediaMetadataKeys.OriginalFilename] = Uri.EscapeDataString(file.FileName);
 
-        var uploaded = await _storage.UploadAsync(file, $"listings/{id}", cancellationToken);
+        var fileId = await _storage.UploadAsync(file, cancellationToken);
 
-        var media = new ListingMedia
+        await Listings().Update(id, x =>
         {
-            Id = Guid.NewGuid(),
-            ListingId = id,
-            Type = type,
-            StorageKey = uploaded.StorageKey,
-            Order = listing.Media.Count,
-            CreatedAt = DateTimeOffset.UtcNow
-        };
+            x.MediaFileIds = [.. x.MediaFileIds, fileId];
+            x.UpdatedAt = DateTimeOffset.UtcNow;
+        });
 
-        var saved = await Media().Save(media);
-
-        return new ListingMediaDto
-        {
-            Id = saved.Id,
-            Type = saved.Type,
-            Url = MediaPathPrefix + "/" + saved.StorageKey,
-            Order = saved.Order
-        };
+        return fileId;
     }
 
-    public async Task<bool> RemoveMediaAsync(Guid listingId, Guid mediaId, Guid userId, bool isAdmin, CancellationToken cancellationToken = default)
+    public async Task<bool> RemoveMediaAsync(Guid listingId, Guid fileId, Guid userId, bool isAdmin, CancellationToken cancellationToken = default)
     {
         var listing = await Listings().Get(listingId);
         if (listing is null) return false;
         EnsureOwnerOrAdmin(listing, userId, isAdmin);
 
-        var media = await Media().Get(mediaId);
-        if (media is null || media.ListingId != listingId) return false;
+        if (!listing.MediaFileIds.Contains(fileId)) return false;
 
-        await _storage.DeleteAsync(media.StorageKey, cancellationToken);
-        await Media().Delete(mediaId);
+        await _storage.DeleteAsync(fileId, cancellationToken);
+
+        await Listings().Update(listingId, x =>
+        {
+            x.MediaFileIds = x.MediaFileIds.Where(f => f != fileId).ToList();
+            x.UpdatedAt = DateTimeOffset.UtcNow;
+        });
+
         return true;
     }
 
@@ -274,14 +268,6 @@ public class ListingService : IListingService
         CreatedAt = listing.CreatedAt,
         OwnerId = listing.OwnerId,
         OwnerName = listing.Owner.DisplayName ?? listing.Owner.Email,
-        Media = listing.Media
-            .OrderBy(m => m.Order)
-            .Select(m => new ListingMediaDto
-            {
-                Id = m.Id,
-                Type = m.Type,
-                Url = MediaPathPrefix + "/" + m.StorageKey,
-                Order = m.Order
-            }).ToList()
+        Media = listing.MediaFileIds
     };
 }

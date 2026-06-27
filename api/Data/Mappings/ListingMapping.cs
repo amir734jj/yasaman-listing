@@ -10,8 +10,6 @@ public sealed class ListingMapping : IEntityTypeConfiguration<Listing>
 {
     public void Configure(EntityTypeBuilder<Listing> builder)
     {
-        builder.Property(x => x.Price).HasPrecision(18, 2);
-
         // Tags are persisted as a JSON array of strings in a jsonb column.
         builder.Property(x => x.Tags)
             .HasColumnType("jsonb")
@@ -22,6 +20,17 @@ public sealed class ListingMapping : IEntityTypeConfiguration<Listing>
                 (a, b) => (a ?? new List<string>()).SequenceEqual(b ?? new List<string>()),
                 v => v == null ? 0 : v.Aggregate(0, (hash, item) => HashCode.Combine(hash, item.GetHashCode())),
                 v => v == null ? new List<string>() : v.ToList()));
+
+        // Ordered media file ids are persisted as a JSON array in a jsonb column.
+        builder.Property(x => x.MediaFileIds)
+            .HasColumnType("jsonb")
+            .HasConversion(
+                v => JsonSerializer.Serialize(v, (JsonSerializerOptions?)null),
+                v => JsonSerializer.Deserialize<List<Guid>>(v, (JsonSerializerOptions?)null) ?? new List<Guid>())
+            .Metadata.SetValueComparer(new ValueComparer<List<Guid>>(
+                (a, b) => (a ?? new List<Guid>()).SequenceEqual(b ?? new List<Guid>()),
+                v => v == null ? 0 : v.Aggregate(0, (hash, item) => HashCode.Combine(hash, item.GetHashCode())),
+                v => v == null ? new List<Guid>() : v.ToList()));
 
         builder.HasIndex(x => x.Status);
         builder.HasIndex(x => x.CreatedAt);

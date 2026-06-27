@@ -6,6 +6,7 @@ export const en = {
     login: 'Login',
     register: 'Register',
     logout: 'Logout',
+    profile: 'Profile',
   },
   theme: {
     light: 'Light',
@@ -71,6 +72,7 @@ export const en = {
     invalidType: 'Only image and video files are allowed.',
     fileTooLarge: 'Some files are too large (max {{image}} MB per image, {{video}} MB per video).',
     tooManyFiles: 'You can upload at most {{max}} files.',
+    mediaRequired: 'Please add at least one photo or video.',
   },
   auth: {
     loginTitle: 'Sign in',
@@ -93,6 +95,17 @@ export const en = {
   },
   seo: {
     tagline: 'Browse, search and post local listings for sale on Yasaman Listing.',
+  },
+  profile: {
+    title: 'My profile',
+    email: 'Email',
+    displayName: 'Display name',
+    displayNamePlaceholder: 'How your name appears on listings',
+    description: 'About you',
+    descriptionPlaceholder: 'Tell others a bit about yourself',
+    save: 'Save profile',
+    saving: 'Saving...',
+    saved: 'Profile updated.',
   },
   admin: {
     users: 'Users',

@@ -56,13 +56,13 @@ public class UserService : IUserService
         if (user is null) return false;
 
         // Best-effort cleanup of the user's listing media from storage before the
-        // database cascade removes the listing/media rows.
+        // database cascade removes the listings.
         var listings = await _repository.For<Listing>()
             .GetAll(filterExprs: [x => x.OwnerId == id]);
 
-        foreach (var media in listings.SelectMany(l => l.Media))
+        foreach (var fileId in listings.SelectMany(l => l.MediaFileIds))
         {
-            await _storage.DeleteAsync(media.StorageKey, cancellationToken);
+            await _storage.DeleteAsync(fileId, cancellationToken);
         }
 
         var result = await _userManager.DeleteAsync(user);

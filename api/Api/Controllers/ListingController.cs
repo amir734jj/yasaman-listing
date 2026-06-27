@@ -143,7 +143,7 @@ public class ListingController : ControllerBase
     [Authorize]
     [RequestSizeLimit(MaxVideoBytes)]
     [DisableFormValueModelBinding]
-    public async Task<ActionResult<ListingMediaDto>> AddMedia(Guid id, CancellationToken cancellationToken)
+    public async Task<IActionResult> AddMedia(Guid id, CancellationToken cancellationToken)
     {
         if (string.IsNullOrEmpty(Request.ContentType)
             || !Request.ContentType.Contains("multipart/", StringComparison.OrdinalIgnoreCase))
@@ -187,8 +187,10 @@ public class ListingController : ControllerBase
                         FileName = disposition.FileName.Value,
                         ContentType = contentType
                     };
-                    var media = await _listingService.AddMediaAsync(id, User.GetUserId(), User.IsAdmin(), upload, cancellationToken);
-                    return media is null ? NotFound() : Ok(media);
+                    var fileId = await _listingService.AddMediaAsync(id, User.GetUserId(), User.IsAdmin(), upload, cancellationToken);
+                    return fileId is null
+                        ? NotFound()
+                        : Ok(new { id = fileId, url = $"/api/files/{fileId}" });
                 }
                 catch (UnauthorizedAccessException)
                 {
@@ -206,13 +208,13 @@ public class ListingController : ControllerBase
         return BadRequest(new { message = "A non-empty file is required." });
     }
 
-    [HttpDelete("{id:guid}/media/{mediaId:guid}")]
+    [HttpDelete("{id:guid}/media/{fileId:guid}")]
     [Authorize]
-    public async Task<IActionResult> RemoveMedia(Guid id, Guid mediaId, CancellationToken cancellationToken)
+    public async Task<IActionResult> RemoveMedia(Guid id, Guid fileId, CancellationToken cancellationToken)
     {
         try
         {
-            var removed = await _listingService.RemoveMediaAsync(id, mediaId, User.GetUserId(), User.IsAdmin(), cancellationToken);
+            var removed = await _listingService.RemoveMediaAsync(id, fileId, User.GetUserId(), User.IsAdmin(), cancellationToken);
             return removed ? NoContent() : NotFound();
         }
         catch (UnauthorizedAccessException)

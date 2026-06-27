@@ -1,6 +1,7 @@
 using Amazon.S3;
 using Amazon.S3.Model;
 using Logic.Configs;
+using Logic.Constants;
 using Logic.Dtos.Storage;
 using Logic.Interfaces;
 using Microsoft.Extensions.Logging;
@@ -20,10 +21,10 @@ public class S3StorageService : IStorageService
         _logger = logger;
     }
 
-    public async Task<UploadedFile> UploadAsync(UploadFileRequest request, string keyPrefix, CancellationToken cancellationToken = default)
+    public async Task<Guid> UploadAsync(UploadFileRequest request, CancellationToken cancellationToken = default)
     {
-        var extension = Path.GetExtension(request.FileName);
-        var key = $"{keyPrefix.Trim('/')}/{Guid.NewGuid():N}{extension}";
+        var fileId = Guid.NewGuid();
+        var key = KeyFor(fileId);
 
         // AWS SDK v4 signs uploads with the chunked STREAMING-AWS4-HMAC-SHA256-PAYLOAD signature
         // by default, which most S3-compatible providers don't implement. Disabling payload
@@ -51,7 +52,7 @@ public class S3StorageService : IStorageService
 
         try
         {
-            await _client.PutObjectAsync(new PutObjectRequest
+            var put = new PutObjectRequest
             {
                 BucketName = _settings.BucketName,
                 Key = key,
@@ -59,7 +60,14 @@ public class S3StorageService : IStorageService
                 ContentType = request.ContentType,
                 DisablePayloadSigning = isHttps,
                 AutoCloseStream = false
-            }, cancellationToken);
+            };
+
+            foreach (var (metaKey, metaValue) in request.Metadata)
+            {
+                put.Metadata.Add(metaKey, metaValue);
+            }
+
+            await _client.PutObjectAsync(put, cancellationToken);
         }
         finally
         {
@@ -69,26 +77,28 @@ public class S3StorageService : IStorageService
             }
         }
 
-        return new UploadedFile
-        {
-            StorageKey = key
-        };
+        return fileId;
     }
 
-    public async Task<StorageObject?> GetAsync(string storageKey, CancellationToken cancellationToken = default)
+    public async Task<StorageObject?> GetAsync(Guid fileId, CancellationToken cancellationToken = default)
     {
         try
         {
             var response = await _client.GetObjectAsync(new GetObjectRequest
             {
                 BucketName = _settings.BucketName,
-                Key = storageKey
+                Key = KeyFor(fileId)
             }, cancellationToken);
+
+            var originalName = response.Metadata[MediaMetadataKeys.OriginalFilename];
 
             return new StorageObject
             {
                 Content = response.ResponseStream,
-                ContentType = response.Headers.ContentType ?? "application/octet-stream"
+                ContentType = response.Headers.ContentType
+                    ?? response.Metadata[MediaMetadataKeys.ContentType]
+                    ?? "application/octet-stream",
+                FileName = string.IsNullOrEmpty(originalName) ? null : Uri.UnescapeDataString(originalName)
             };
         }
         catch (AmazonS3Exception ex) when (ex.StatusCode == System.Net.HttpStatusCode.NotFound)
@@ -97,19 +107,39 @@ public class S3StorageService : IStorageService
         }
     }
 
-    public async Task DeleteAsync(string storageKey, CancellationToken cancellationToken = default)
+    public async Task<string?> GetContentTypeAsync(Guid fileId, CancellationToken cancellationToken = default)
+    {
+        try
+        {
+            var meta = await _client.GetObjectMetadataAsync(new GetObjectMetadataRequest
+            {
+                BucketName = _settings.BucketName,
+                Key = KeyFor(fileId)
+            }, cancellationToken);
+
+            return meta.Headers.ContentType ?? meta.Metadata[MediaMetadataKeys.ContentType];
+        }
+        catch (AmazonS3Exception ex) when (ex.StatusCode == System.Net.HttpStatusCode.NotFound)
+        {
+            return null;
+        }
+    }
+
+    public async Task DeleteAsync(Guid fileId, CancellationToken cancellationToken = default)
     {
         try
         {
             await _client.DeleteObjectAsync(new DeleteObjectRequest
             {
                 BucketName = _settings.BucketName,
-                Key = storageKey
+                Key = KeyFor(fileId)
             }, cancellationToken);
         }
         catch (AmazonS3Exception ex)
         {
-            _logger.LogError(ex, "Failed deleting S3 object {Key}", storageKey);
+            _logger.LogError(ex, "Failed deleting S3 object {FileId}", fileId);
         }
     }
+
+    private static string KeyFor(Guid fileId) => $"media/{fileId:N}";
 }

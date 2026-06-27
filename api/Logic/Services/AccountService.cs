@@ -64,6 +64,39 @@ public class AccountService : IAccountService
         return await BuildAuthResponseAsync(user);
     }
 
+    public async Task<ProfileDto?> GetProfileAsync(Guid userId, CancellationToken cancellationToken = default)
+    {
+        var user = await _userManager.FindByIdAsync(userId.ToString());
+        return user is null ? null : MapProfile(user);
+    }
+
+    public async Task<ProfileDto?> UpdateProfileAsync(Guid userId, UpdateProfileRequest request, CancellationToken cancellationToken = default)
+    {
+        var user = await _userManager.FindByIdAsync(userId.ToString());
+        if (user is null) return null;
+
+        user.DisplayName = string.IsNullOrWhiteSpace(request.DisplayName)
+            ? user.Email
+            : request.DisplayName.Trim();
+        user.Description = string.IsNullOrWhiteSpace(request.Description) ? null : request.Description.Trim();
+
+        var result = await _userManager.UpdateAsync(user);
+        if (!result.Succeeded)
+        {
+            throw new InvalidOperationException(string.Join(" ", result.Errors.Select(e => e.Description)));
+        }
+
+        return MapProfile(user);
+    }
+
+    private static ProfileDto MapProfile(User user) => new()
+    {
+        Id = user.Id,
+        Email = user.Email ?? string.Empty,
+        DisplayName = user.DisplayName,
+        Description = user.Description
+    };
+
     private async Task<AuthResponse> BuildAuthResponseAsync(User user)
     {
         var roles = await _userManager.GetRolesAsync(user);

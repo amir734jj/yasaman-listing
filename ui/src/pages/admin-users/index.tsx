@@ -72,7 +72,7 @@ export default function AdminUsersPage() {
                 <td>
                   {user.email}
                   {isSelf && (
-                    <Badge bg="info" className="ms-2">
+                    <Badge bg="info" style={{ marginInlineStart: '0.5rem' }}>
                       {t('admin.you')}
                     </Badge>
                   )}

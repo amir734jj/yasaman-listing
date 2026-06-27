@@ -4,8 +4,10 @@ import { SITE_NAME } from './useSeo';
 
 const origin = () => (typeof window !== 'undefined' ? window.location.origin : '');
 
-const absolute = (url: string) =>
-  /^https?:\/\//i.test(url) ? url : `${origin()}${url.startsWith('/') ? '' : '/'}${url}`;
+const absolute = (url: string) => {
+  const base = origin();
+  return base ? new URL(url, base).href : url;
+};
 
 const availabilityFor = (status?: ListingStatus) => {
   switch (status) {
@@ -44,9 +46,7 @@ export function listingsItemListJsonLd(listings: ListingDto[]) {
 
 /** Product schema generated from a single listing. */
 export function listingJsonLd(listing: ListingDto) {
-  const images = (listing.media ?? [])
-    .filter((m) => !!m.url)
-    .map((m) => absolute(m.url as string));
+  const images = (listing.media ?? []).map((id) => absolute(`/api/files/${id}`));
 
   return {
     '@context': 'https://schema.org',
@@ -57,7 +57,7 @@ export function listingJsonLd(listing: ListingDto) {
     ...(listing.tags?.length ? { keywords: listing.tags.join(', ') } : {}),
     offers: {
       '@type': 'Offer',
-      price: listing.price ?? 0,
+      price: listing.price ?? '',
       priceCurrency: 'USD',
       availability: availabilityFor(listing.status),
       ...(listing.id ? { url: `${origin()}/listings/${listing.id}` } : {}),

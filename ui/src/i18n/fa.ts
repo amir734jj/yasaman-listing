@@ -8,6 +8,7 @@ export const fa: TranslationSchema = {
     login: 'ورود',
     register: 'ثبت‌نام',
     logout: 'خروج',
+    profile: 'پروفایل',
   },
   theme: {
     light: 'روشن',
@@ -73,6 +74,7 @@ export const fa: TranslationSchema = {
     invalidType: 'فقط فایل‌های عکس و ویدیو مجاز هستند.',
     fileTooLarge: 'برخی فایل‌ها خیلی بزرگ هستند (هر عکس تا {{image}} مگابایت، هر ویدیو تا {{video}} مگابایت).',
     tooManyFiles: 'حداکثر می‌توانید {{max}} فایل بارگذاری کنید.',
+    mediaRequired: 'لطفاً حداقل یک عکس یا ویدیو اضافه کنید.',
   },
   auth: {
     loginTitle: 'ورود',
@@ -95,6 +97,17 @@ export const fa: TranslationSchema = {
   },
   seo: {
     tagline: 'جستجو، مرور و ثبت آگهی‌های فروش محلی در یاسمن لیستینگ.',
+  },
+  profile: {
+    title: 'پروفایل من',
+    email: 'ایمیل',
+    displayName: 'نام نمایشی',
+    displayNamePlaceholder: 'نامی که روی آگهی‌ها نمایش داده می‌شود',
+    description: 'درباره شما',
+    descriptionPlaceholder: 'کمی درباره خودتان بنویسید',
+    save: 'ذخیره پروفایل',
+    saving: 'در حال ذخیره...',
+    saved: 'پروفایل به‌روزرسانی شد.',
   },
   admin: {
     users: 'کاربران',

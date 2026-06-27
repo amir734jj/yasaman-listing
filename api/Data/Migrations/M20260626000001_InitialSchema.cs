@@ -21,6 +21,7 @@ public class M20260626000001_InitialSchema : Migration
         Create.Table("AspNetUsers")
             .WithColumn("Id").AsGuid().NotNullable().PrimaryKey("PK_AspNetUsers")
             .WithColumn("DisplayName").AsString().Nullable()
+            .WithColumn("Description").AsString().Nullable()
             .WithColumn("Enabled").AsBoolean().NotNullable()
             .WithColumn("CreatedAt").AsDateTimeOffset().NotNullable()
             .WithColumn("UserName").AsString(256).Nullable()
@@ -71,21 +72,14 @@ public class M20260626000001_InitialSchema : Migration
             .WithColumn("Name").AsString(200).NotNullable()
             .WithColumn("Description").AsString(4000).NotNullable()
             .WithColumn("Location").AsString(300).NotNullable()
-            .WithColumn("Price").AsDecimal(18, 2).NotNullable()
+            .WithColumn("Price").AsString(100).NotNullable()
             .WithColumn("Tags").AsCustom("jsonb").NotNullable().WithDefaultValue("[]")
+            .WithColumn("MediaFileIds").AsCustom("jsonb").NotNullable().WithDefaultValue("[]")
             .WithColumn("Status").AsInt32().NotNullable()
             .WithColumn("SoldAt").AsDateTimeOffset().Nullable()
             .WithColumn("CreatedAt").AsDateTimeOffset().NotNullable()
             .WithColumn("UpdatedAt").AsDateTimeOffset().NotNullable()
             .WithColumn("OwnerId").AsGuid().NotNullable();
-
-        Create.Table("ListingMedia")
-            .WithColumn("Id").AsGuid().NotNullable().PrimaryKey("PK_ListingMedia")
-            .WithColumn("ListingId").AsGuid().NotNullable()
-            .WithColumn("Type").AsInt32().NotNullable()
-            .WithColumn("StorageKey").AsString(500).NotNullable()
-            .WithColumn("Order").AsInt32().NotNullable()
-            .WithColumn("CreatedAt").AsDateTimeOffset().NotNullable();
 
         Create.Table("GlobalConfigs")
             .WithColumn("Id").AsGuid().NotNullable().PrimaryKey("PK_GlobalConfigs")
@@ -121,10 +115,6 @@ public class M20260626000001_InitialSchema : Migration
             .FromTable("Listings").ForeignColumn("OwnerId")
             .ToTable("AspNetUsers").PrimaryColumn("Id").OnDelete(Rule.Cascade);
 
-        Create.ForeignKey("FK_ListingMedia_Listings_ListingId")
-            .FromTable("ListingMedia").ForeignColumn("ListingId")
-            .ToTable("Listings").PrimaryColumn("Id").OnDelete(Rule.Cascade);
-
         // Indexes.
         Create.Index("IX_AspNetRoleClaims_RoleId").OnTable("AspNetRoleClaims").OnColumn("RoleId");
         Create.Index("RoleNameIndex").OnTable("AspNetRoles").OnColumn("NormalizedName").Unique();
@@ -133,7 +123,6 @@ public class M20260626000001_InitialSchema : Migration
         Create.Index("IX_AspNetUserRoles_RoleId").OnTable("AspNetUserRoles").OnColumn("RoleId");
         Create.Index("EmailIndex").OnTable("AspNetUsers").OnColumn("NormalizedEmail");
         Create.Index("UserNameIndex").OnTable("AspNetUsers").OnColumn("NormalizedUserName").Unique();
-        Create.Index("IX_ListingMedia_ListingId").OnTable("ListingMedia").OnColumn("ListingId");
         Create.Index("IX_Listings_CreatedAt").OnTable("Listings").OnColumn("CreatedAt");
         Create.Index("IX_Listings_OwnerId").OnTable("Listings").OnColumn("OwnerId");
         Create.Index("IX_Listings_Status").OnTable("Listings").OnColumn("Status");
@@ -147,7 +136,6 @@ public class M20260626000001_InitialSchema : Migration
         Delete.Table("AspNetUserLogins");
         Delete.Table("AspNetUserRoles");
         Delete.Table("AspNetUserTokens");
-        Delete.Table("ListingMedia");
         Delete.Table("Listings");
         Delete.Table("GlobalConfigs");
         Delete.Table("AspNetRoles");

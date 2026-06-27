@@ -13,6 +13,7 @@ public class ListingProfile : EntityProfile<Listing>
         Map(x => x.Location);
         Map(x => x.Price);
         Map(x => x.Tags);
+        Map(x => x.MediaFileIds);
         Map(x => x.Status);
         Map(x => x.SoldAt);
         Map(x => x.CreatedAt);
@@ -22,8 +23,6 @@ public class ListingProfile : EntityProfile<Listing>
 
     protected override IQueryable<Listing> Include<TQueryable>(TQueryable queryable)
     {
-        return queryable
-            .Include(x => x.Owner)
-            .Include(x => x.Media.OrderBy(m => m.Order));
+        return queryable.Include(x => x.Owner);
     }
 }

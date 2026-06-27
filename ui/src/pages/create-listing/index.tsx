@@ -3,10 +3,9 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { Form, Button, Row, Col, Alert } from 'react-bootstrap';
 import { useTranslation } from 'react-i18next';
 import { api } from '../../api/client';
-import type { ListingMediaDto } from '../../api/generated/Api';
-import { MediaType } from '../../api/generated/Api';
 import FileDropzone from '../../components/file-dropzone';
 import TagsInput from '../../components/tags-input';
+import MediaView from '../../components/media-view';
 import { useSeo } from '../../hooks/useSeo';
 
 export default function CreateListingPage() {
@@ -22,7 +21,7 @@ export default function CreateListingPage() {
   const [price, setPrice] = useState('');
   const [tags, setTags] = useState<string[]>([]);
   const [files, setFiles] = useState<File[]>([]);
-  const [existingMedia, setExistingMedia] = useState<ListingMediaDto[]>([]);
+  const [existingMedia, setExistingMedia] = useState<string[]>([]);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
 
@@ -48,13 +47,19 @@ export default function CreateListingPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
+
+    if (existingMedia.length + files.length === 0) {
+      setError(t('create.mediaRequired'));
+      return;
+    }
+
     setBusy(true);
     try {
       const payload = {
         name,
         description,
         location,
-        price: Number(price) || 0,
+        price,
         tags,
       };
 
@@ -75,10 +80,14 @@ export default function CreateListingPage() {
     }
   };
 
-  const removeExisting = async (mediaId: string) => {
+  const removeExisting = async (fileId: string) => {
     if (!id) return;
-    await api.listing.listingsMediaDelete(id, mediaId);
-    setExistingMedia((prev) => prev.filter((m) => m.id !== mediaId));
+    if (existingMedia.length <= 1 && files.length === 0) {
+      setError(t('create.mediaRequired'));
+      return;
+    }
+    await api.listing.listingsMediaDelete(id, fileId);
+    setExistingMedia((prev) => prev.filter((m) => m !== fileId));
   };
 
   return (
@@ -136,19 +145,15 @@ export default function CreateListingPage() {
 
         {isEdit && existingMedia.length > 0 && (
           <Row className="g-2 mb-3">
-            {existingMedia.map((m) => (
-              <Col xs={6} md={4} key={m.id}>
-                {m.type === MediaType.Video ? (
-                  <video src={m.url ?? undefined} controls className="media-thumb" preload="none" />
-                ) : (
-                  <img src={m.url ?? undefined} alt="" className="media-thumb" loading="lazy" decoding="async" />
-                )}
+            {existingMedia.map((fileId) => (
+              <Col xs={6} md={4} key={fileId}>
+                <MediaView fileId={fileId} className="media-thumb" controls />
                 <Button
                   type="button"
                   variant="danger"
                   size="sm"
                   className="w-100 mt-1"
-                  onClick={() => removeExisting(m.id!)}
+                  onClick={() => removeExisting(fileId)}
                 >
                   {t('detail.delete')}
                 </Button>

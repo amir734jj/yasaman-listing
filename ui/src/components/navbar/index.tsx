@@ -41,6 +41,11 @@ export default function AppNavbar() {
                 {t('nav.create')}
               </Nav.Link>
             )}
+            {token && (
+              <Nav.Link as={Link} to="/profile">
+                {t('nav.profile')}
+              </Nav.Link>
+            )}
             {isAdmin && (
               <Nav.Link as={Link} to="/admin/users">
                 {t('admin.users')}

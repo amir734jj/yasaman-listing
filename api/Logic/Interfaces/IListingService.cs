@@ -22,7 +22,7 @@ public interface IListingService
 
     Task<bool> DeleteAsync(Guid id, Guid userId, bool isAdmin, CancellationToken cancellationToken = default);
 
-    Task<ListingMediaDto?> AddMediaAsync(Guid id, Guid userId, bool isAdmin, UploadFileRequest file, CancellationToken cancellationToken = default);
+    Task<Guid?> AddMediaAsync(Guid id, Guid userId, bool isAdmin, UploadFileRequest file, CancellationToken cancellationToken = default);
 
-    Task<bool> RemoveMediaAsync(Guid listingId, Guid mediaId, Guid userId, bool isAdmin, CancellationToken cancellationToken = default);
+    Task<bool> RemoveMediaAsync(Guid listingId, Guid fileId, Guid userId, bool isAdmin, CancellationToken cancellationToken = default);
 }

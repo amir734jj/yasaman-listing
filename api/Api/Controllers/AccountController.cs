@@ -1,3 +1,4 @@
+using Api.Extensions;
 using Logic.Dtos.Account;
 using Logic.Interfaces;
 using Microsoft.AspNetCore.Authorization;
@@ -41,6 +42,29 @@ public class AccountController : ControllerBase
         catch (UnauthorizedAccessException ex)
         {
             return Unauthorized(new { message = ex.Message });
+        }
+    }
+
+    [HttpGet("profile")]
+    [Authorize]
+    public async Task<ActionResult<ProfileDto>> GetProfile(CancellationToken cancellationToken)
+    {
+        var profile = await _accountService.GetProfileAsync(User.GetUserId(), cancellationToken);
+        return profile is null ? NotFound() : Ok(profile);
+    }
+
+    [HttpPut("profile")]
+    [Authorize]
+    public async Task<ActionResult<ProfileDto>> UpdateProfile([FromBody] UpdateProfileRequest request, CancellationToken cancellationToken)
+    {
+        try
+        {
+            var profile = await _accountService.UpdateProfileAsync(User.GetUserId(), request, cancellationToken);
+            return profile is null ? NotFound() : Ok(profile);
+        }
+        catch (InvalidOperationException ex)
+        {
+            return BadRequest(new { message = ex.Message });
         }
     }
 }

@@ -38,6 +38,21 @@ export interface AuthResponse {
   roles?: string[] | null;
 }
 
+export interface ProfileDto {
+  /** @format uuid */
+  id?: string;
+  email?: string | null;
+  displayName?: string | null;
+  description?: string | null;
+}
+
+export interface UpdateProfileRequest {
+  /** @maxLength 256 */
+  displayName?: string | null;
+  /** @maxLength 2000 */
+  description?: string | null;
+}
+
 export interface CreateListingRequest {
   /**
    * @minLength 1
@@ -54,12 +69,7 @@ export interface CreateListingRequest {
    * @maxLength 300
    */
   location: string;
-  /**
-   * @format double
-   * @min 0
-   * @max 1000000000
-   */
-  price?: number;
+  price?: string | null;
   tags?: string[] | null;
 }
 
@@ -69,8 +79,7 @@ export interface ListingDto {
   name?: string | null;
   description?: string | null;
   location?: string | null;
-  /** @format double */
-  price?: number;
+  price?: string | null;
   tags?: string[] | null;
   status?: ListingStatus;
   /** @format date-time */
@@ -80,7 +89,7 @@ export interface ListingDto {
   /** @format uuid */
   ownerId?: string;
   ownerName?: string | null;
-  media?: ListingMediaDto[] | null;
+  media?: string[] | null;
 }
 
 export interface ListingDtoPagedResult {
@@ -139,12 +148,7 @@ export interface UpdateListingRequest {
    * @maxLength 300
    */
   location: string;
-  /**
-   * @format double
-   * @min 0
-   * @max 1000000000
-   */
-  price?: number;
+  price?: string | null;
   tags?: string[] | null;
 }
 
@@ -376,6 +380,42 @@ export class Api<
       this.request<AuthResponse, any>({
         path: `/api/account/login`,
         method: "POST",
+        body: data,
+        secure: true,
+        type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Account
+     * @name AccountProfileList
+     * @request GET:/api/account/profile
+     * @secure
+     */
+    accountProfileList: (params: RequestParams = {}) =>
+      this.request<ProfileDto, any>({
+        path: `/api/account/profile`,
+        method: "GET",
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Account
+     * @name AccountProfileUpdate
+     * @request PUT:/api/account/profile
+     * @secure
+     */
+    accountProfileUpdate: (data: UpdateProfileRequest, params: RequestParams = {}) =>
+      this.request<ProfileDto, any>({
+        path: `/api/account/profile`,
+        method: "PUT",
         body: data,
         secure: true,
         type: ContentType.Json,

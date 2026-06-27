@@ -1,0 +1,22 @@
+import type { Language } from '../store/languageStore';
+
+/**
+ * Formats a price for display in the active language. Purely numeric prices get thousands
+ * separators and a currency (dollars for English, rial for Farsi); anything else (free-form
+ * text) is shown as entered.
+ */
+export function formatPrice(price: string | null | undefined, language: Language): string {
+  const value = (price ?? '').trim();
+  if (!value) return '';
+
+  const numericLike = /^[\d.,\u066b\u066c\s]+$/.test(value);
+  const num = Number(value.replace(/[,\u066b\u066c\s]/g, ''));
+
+  if (numericLike && !Number.isNaN(num)) {
+    return language === 'fa'
+      ? `${num.toLocaleString('fa-IR')} ریال`
+      : `$${num.toLocaleString('en-US')}`;
+  }
+
+  return value;
+}

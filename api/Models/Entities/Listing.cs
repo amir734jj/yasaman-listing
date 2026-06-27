@@ -18,7 +18,8 @@ public class Listing : IEntity
     [MaxLength(300)]
     public string Location { get; set; } = string.Empty;
 
-    public decimal Price { get; set; }
+    [MaxLength(100)]
+    public string Price { get; set; } = string.Empty;
 
     /// <summary>
     /// Optional free-form tags (stored as a JSON array of strings in a jsonb column).
@@ -40,5 +41,9 @@ public class Listing : IEntity
 
     public User? Owner { get; set; }
 
-    public ICollection<ListingMedia> Media { get; set; } = new List<ListingMedia>();
+    /// <summary>
+    /// Ordered ids of the media files for this listing. Each id maps to an object in storage;
+    /// the file's mime type and other info live as object metadata. Stored as a jsonb array.
+    /// </summary>
+    public List<Guid> MediaFileIds { get; set; } = new();
 }

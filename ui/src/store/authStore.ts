@@ -10,6 +10,7 @@ interface AuthState {
   displayName: string | null;
   roles: string[];
   setAuth: (auth: AuthResponse) => void;
+  setDisplayName: (displayName: string | null) => void;
   logout: () => void;
   isAuthenticated: () => boolean;
   isAdmin: () => boolean;
@@ -31,6 +32,7 @@ export const useAuthStore = create<AuthState>()(
           displayName: auth.displayName ?? null,
           roles: auth.roles ?? [],
         }),
+      setDisplayName: (displayName) => set({ displayName }),
       logout: () =>
         set({ token: null, userId: null, email: null, displayName: null, roles: [] }),
       isAuthenticated: () => !!get().token,

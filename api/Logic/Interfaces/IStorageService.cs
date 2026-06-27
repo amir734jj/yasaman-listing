@@ -4,9 +4,11 @@ namespace Logic.Interfaces;
 
 public interface IStorageService
 {
-    Task<UploadedFile> UploadAsync(UploadFileRequest request, string keyPrefix, CancellationToken cancellationToken = default);
+    Task<Guid> UploadAsync(UploadFileRequest request, CancellationToken cancellationToken = default);
 
-    Task<StorageObject?> GetAsync(string storageKey, CancellationToken cancellationToken = default);
+    Task<StorageObject?> GetAsync(Guid fileId, CancellationToken cancellationToken = default);
 
-    Task DeleteAsync(string storageKey, CancellationToken cancellationToken = default);
+    Task<string?> GetContentTypeAsync(Guid fileId, CancellationToken cancellationToken = default);
+
+    Task DeleteAsync(Guid fileId, CancellationToken cancellationToken = default);
 }
