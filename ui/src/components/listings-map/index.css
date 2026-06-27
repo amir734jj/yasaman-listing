@@ -5,6 +5,27 @@
   margin: 0 auto;
 }
 
+.listings-map-leaflet {
+  width: 100%;
+  height: 480px;
+  border: 1px solid var(--bs-border-color);
+  border-radius: 0.5rem;
+}
+
+.listings-map-leaflet-marker {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  font-weight: 600;
+  color: #fff;
+  background-color: var(--bs-primary);
+  border: 2px solid #fff;
+  border-radius: 50%;
+  box-shadow: 0 0.125rem 0.375rem rgba(0, 0, 0, 0.3);
+}
+
 .listings-map-svg {
   width: 100%;
   height: auto;
@@ -46,6 +67,7 @@
   position: absolute;
   top: 0.75rem;
   inset-inline-end: 0.75rem;
+  z-index: 1000;
   max-width: 16rem;
   max-height: calc(100% - 1.5rem);
   overflow-y: auto;
