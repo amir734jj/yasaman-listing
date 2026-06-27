@@ -84,6 +84,11 @@ export const fa: TranslationSchema = {
     fileTooLarge: 'برخی فایل‌ها خیلی بزرگ هستند (هر عکس تا {{image}} مگابایت، هر ویدیو تا {{video}} مگابایت).',
     tooManyFiles: 'حداکثر می‌توانید {{max}} فایل بارگذاری کنید.',
     mediaRequired: 'لطفاً حداقل یک عکس یا ویدیو اضافه کنید.',
+    currentMedia: 'عکس‌ها و ویدیوهای فعلی',
+    reorderHint: 'برای تغییر ترتیب از فلش‌ها استفاده کنید. مورد اول تصویر اصلی است.',
+    cover: 'تصویر اصلی',
+    moveEarlier: 'انتقال به عقب',
+    moveLater: 'انتقال به جلو',
   },
   auth: {
     loginTitle: 'ورود',

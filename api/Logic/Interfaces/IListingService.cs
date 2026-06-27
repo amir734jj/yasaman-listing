@@ -25,4 +25,6 @@ public interface IListingService
     Task<Guid?> AddMediaAsync(Guid id, Guid userId, bool isAdmin, UploadFileRequest file, CancellationToken cancellationToken = default);
 
     Task<bool> RemoveMediaAsync(Guid listingId, Guid fileId, Guid userId, bool isAdmin, CancellationToken cancellationToken = default);
+
+    Task<bool> ReorderMediaAsync(Guid listingId, IReadOnlyList<Guid> orderedFileIds, Guid userId, bool isAdmin, CancellationToken cancellationToken = default);
 }

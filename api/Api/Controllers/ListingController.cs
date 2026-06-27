@@ -224,4 +224,19 @@ public class ListingController : ControllerBase
             return Forbid();
         }
     }
+
+    [HttpPut("{id:guid}/media/order")]
+    [Authorize]
+    public async Task<IActionResult> ReorderMedia(Guid id, [FromBody] ReorderMediaRequest request, CancellationToken cancellationToken)
+    {
+        try
+        {
+            var reordered = await _listingService.ReorderMediaAsync(id, request.MediaIds, User.GetUserId(), User.IsAdmin(), cancellationToken);
+            return reordered ? NoContent() : NotFound();
+        }
+        catch (UnauthorizedAccessException)
+        {
+            return Forbid();
+        }
+    }
 }

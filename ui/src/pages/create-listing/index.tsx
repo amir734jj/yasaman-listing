@@ -1,7 +1,9 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { Form, Button, Row, Col, Alert } from 'react-bootstrap';
+import { Form, Button, Row, Col, Alert, Badge } from 'react-bootstrap';
 import { useTranslation } from 'react-i18next';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faArrowUp, faArrowDown } from '@fortawesome/free-solid-svg-icons';
 import { api } from '../../api/client';
 import FileDropzone from '../../components/file-dropzone';
 import TagsInput from '../../components/tags-input';
@@ -95,6 +97,23 @@ export default function CreateListingPage() {
     setExistingMedia((prev) => prev.filter((m) => m !== fileId));
   };
 
+  const moveExisting = async (index: number, direction: -1 | 1) => {
+    const target = index + direction;
+    if (!id || target < 0 || target >= existingMedia.length) return;
+
+    const previous = existingMedia;
+    const next = [...existingMedia];
+    [next[index], next[target]] = [next[target], next[index]];
+    setExistingMedia(next);
+
+    try {
+      await api.listing.listingsMediaOrderUpdate(id, { mediaIds: next });
+    } catch {
+      setExistingMedia(previous);
+      setError(t('common.error'));
+    }
+  };
+
   return (
     <div style={{ maxWidth: 640 }}>
       <h1 className="h3 mb-3">{isEdit ? t('create.editTitle') : t('create.title')}</h1>
@@ -149,22 +168,57 @@ export default function CreateListingPage() {
         </Form.Group>
 
         {isEdit && existingMedia.length > 0 && (
-          <Row className="g-2 mb-3">
-            {existingMedia.map((fileId) => (
-              <Col xs={6} md={4} key={fileId}>
-                <MediaView fileId={fileId} className="media-thumb" controls />
-                <Button
-                  type="button"
-                  variant="danger"
-                  size="sm"
-                  className="w-100 mt-1"
-                  onClick={() => removeExisting(fileId)}
-                >
-                  {t('detail.delete')}
-                </Button>
-              </Col>
-            ))}
-          </Row>
+          <Form.Group className="mb-3">
+            <Form.Label className="mb-1 d-block">{t('create.currentMedia')}</Form.Label>
+            <Form.Text className="d-block text-body-secondary mb-2">{t('create.reorderHint')}</Form.Text>
+            <Row className="g-2">
+              {existingMedia.map((fileId, index) => (
+                <Col xs={6} md={4} key={fileId}>
+                  <div className="position-relative">
+                    <MediaView fileId={fileId} className="media-thumb" controls thumb />
+                    {index === 0 && (
+                      <Badge bg="primary" className="position-absolute top-0 start-0 m-1">
+                        {t('create.cover')}
+                      </Badge>
+                    )}
+                  </div>
+                  <div className="d-flex gap-1 mt-1">
+                    <Button
+                      type="button"
+                      variant="outline-secondary"
+                      size="sm"
+                      disabled={index === 0}
+                      onClick={() => moveExisting(index, -1)}
+                      title={t('create.moveEarlier')}
+                      aria-label={t('create.moveEarlier')}
+                    >
+                      <FontAwesomeIcon icon={faArrowUp} />
+                    </Button>
+                    <Button
+                      type="button"
+                      variant="outline-secondary"
+                      size="sm"
+                      disabled={index === existingMedia.length - 1}
+                      onClick={() => moveExisting(index, 1)}
+                      title={t('create.moveLater')}
+                      aria-label={t('create.moveLater')}
+                    >
+                      <FontAwesomeIcon icon={faArrowDown} />
+                    </Button>
+                    <Button
+                      type="button"
+                      variant="danger"
+                      size="sm"
+                      className="ms-auto"
+                      onClick={() => removeExisting(fileId)}
+                    >
+                      {t('detail.delete')}
+                    </Button>
+                  </div>
+                </Col>
+              ))}
+            </Row>
+          </Form.Group>
         )}
 
         <Form.Group className="mb-3">

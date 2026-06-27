@@ -82,6 +82,11 @@ export const en = {
     fileTooLarge: 'Some files are too large (max {{image}} MB per image, {{video}} MB per video).',
     tooManyFiles: 'You can upload at most {{max}} files.',
     mediaRequired: 'Please add at least one photo or video.',
+    currentMedia: 'Current photos & videos',
+    reorderHint: 'Use the arrows to reorder. The first item is the cover.',
+    cover: 'Cover',
+    moveEarlier: 'Move earlier',
+    moveLater: 'Move later',
   },
   auth: {
     loginTitle: 'Sign in',

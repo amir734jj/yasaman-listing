@@ -53,6 +53,12 @@ public class UpdateListingRequest
     public List<string> Tags { get; set; } = new();
 }
 
+public class ReorderMediaRequest
+{
+    [Required]
+    public List<Guid> MediaIds { get; set; } = new();
+}
+
 public enum ListingSortBy
 {
     MostRecent = 0,

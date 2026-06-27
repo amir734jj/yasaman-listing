@@ -251,6 +251,29 @@ public class ListingService : IListingService
         return true;
     }
 
+    public async Task<bool> ReorderMediaAsync(Guid listingId, IReadOnlyList<Guid> orderedFileIds, Guid userId, bool isAdmin, CancellationToken cancellationToken = default)
+    {
+        var listing = await Listings().Get(listingId);
+        if (listing is null) return false;
+        EnsureOwnerOrAdmin(listing, userId, isAdmin);
+
+        // The requested order must be a permutation of the listing's existing media — same set, no
+        // additions or removals — otherwise reject it.
+        var current = listing.MediaFileIds;
+        if (orderedFileIds.Count != current.Count || !current.ToHashSet().SetEquals(orderedFileIds))
+        {
+            return false;
+        }
+
+        await Listings().Update(listingId, x =>
+        {
+            x.MediaFileIds = orderedFileIds.ToList();
+            x.UpdatedAt = DateTimeOffset.UtcNow;
+        });
+
+        return true;
+    }
+
     private static void EnsureOwnerOrAdmin(Listing listing, Guid userId, bool isAdmin)
     {
         if (!isAdmin && listing.OwnerId != userId)

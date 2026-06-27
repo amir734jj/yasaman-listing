@@ -632,6 +632,30 @@ export class Api<
         secure: true,
         ...params,
       }),
+
+    /**
+     * No description
+     *
+     * @tags Listing
+     * @name ListingsMediaOrderUpdate
+     * @request PUT:/api/listings/{id}/media/order
+     * @secure
+     */
+    listingsMediaOrderUpdate: (
+      id: string,
+      data: {
+        mediaIds: string[];
+      },
+      params: RequestParams = {},
+    ) =>
+      this.request<void, any>({
+        path: `/api/listings/${id}/media/order`,
+        method: "PUT",
+        body: data,
+        secure: true,
+        type: ContentType.Json,
+        ...params,
+      }),
   };
   user = {
     /**
