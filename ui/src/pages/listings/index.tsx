@@ -1,12 +1,13 @@
 import { useEffect, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
-import { Row, Col, Form, InputGroup, Spinner } from 'react-bootstrap';
+import { Row, Col, Form, InputGroup, Spinner, ButtonGroup, Button } from 'react-bootstrap';
 import { useTranslation } from 'react-i18next';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faMagnifyingGlass } from '@fortawesome/free-solid-svg-icons';
+import { faMagnifyingGlass, faTableCells, faMapLocationDot } from '@fortawesome/free-solid-svg-icons';
 import { api } from '../../api/client';
 import { type ListingDto, ListingSortBy } from '../../api/generated/Api';
 import ListingCard from '../../components/listing-card';
+import ListingsMap from '../../components/listings-map';
 import { useSeo } from '../../hooks/useSeo';
 import { websiteJsonLd, listingsItemListJsonLd } from '../../hooks/structuredData';
 
@@ -18,6 +19,7 @@ export default function ListingsPage() {
   const [sortBy, setSortBy] = useState<ListingSortBy>(ListingSortBy.MostRecent);
   const [items, setItems] = useState<ListingDto[]>([]);
   const [loading, setLoading] = useState(true);
+  const [view, setView] = useState<'grid' | 'map'>('grid');
 
   const ownerName = owner ? items[0]?.ownerName : null;
 
@@ -78,6 +80,26 @@ export default function ListingsPage() {
             <option value={ListingSortBy.PriceDesc}>{t('listings.priceHighLow')}</option>
           </Form.Select>
         </Col>
+        <Col xs={12} md="auto">
+          <ButtonGroup>
+            <Button
+              variant={view === 'grid' ? 'primary' : 'outline-secondary'}
+              onClick={() => setView('grid')}
+              title={t('listings.viewGrid')}
+            >
+              <FontAwesomeIcon icon={faTableCells} style={{ marginInlineEnd: '0.4rem' }} />
+              {t('listings.viewGrid')}
+            </Button>
+            <Button
+              variant={view === 'map' ? 'primary' : 'outline-secondary'}
+              onClick={() => setView('map')}
+              title={t('listings.viewMap')}
+            >
+              <FontAwesomeIcon icon={faMapLocationDot} style={{ marginInlineEnd: '0.4rem' }} />
+              {t('listings.viewMap')}
+            </Button>
+          </ButtonGroup>
+        </Col>
       </Row>
 
       {loading ? (
@@ -87,6 +109,8 @@ export default function ListingsPage() {
         </div>
       ) : items.length === 0 ? (
         <p className="text-body-secondary">{t('listings.empty')}</p>
+      ) : view === 'map' ? (
+        <ListingsMap listings={items} />
       ) : (
         <Row xs={1} sm={2} md={3} lg={4} className="g-3">
           {items.map((listing) => (

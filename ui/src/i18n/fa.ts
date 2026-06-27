@@ -34,6 +34,10 @@ export const fa: TranslationSchema = {
     byOwner: 'آگهی‌های {{name}}',
     allListings: '← همه آگهی‌ها',
     viewDetails: 'مشاهده جزئیات',
+    viewGrid: 'شبکه‌ای',
+    viewMap: 'نقشه',
+    mapEmpty: 'آگهی‌ای با شهر مشخص برای نمایش روی نقشه وجود ندارد.',
+    mapHidden: '{{count}} آگهی بدون شهر مشخص روی نقشه نمایش داده نمی‌شود.',
   },
   status: {
     Available: 'موجود',

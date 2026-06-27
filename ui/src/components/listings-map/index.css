@@ -1,0 +1,57 @@
+.listings-map {
+  position: relative;
+  width: 100%;
+  max-width: 720px;
+  margin: 0 auto;
+}
+
+.listings-map-svg {
+  width: 100%;
+  height: auto;
+  background-color: var(--bs-tertiary-bg);
+  border: 1px solid var(--bs-border-color);
+  border-radius: 0.5rem;
+}
+
+.listings-map-outline {
+  fill: var(--bs-secondary-bg);
+  stroke: var(--bs-border-color);
+  stroke-width: 2;
+}
+
+.listings-map-marker {
+  cursor: pointer;
+}
+
+.listings-map-marker circle {
+  fill: var(--bs-primary);
+  stroke: #fff;
+  stroke-width: 2;
+  transition: fill 0.15s ease-in-out;
+}
+
+.listings-map-marker:hover circle,
+.listings-map-marker.is-active circle {
+  fill: var(--bs-danger);
+}
+
+.listings-map-marker text {
+  fill: #fff;
+  font-size: 18px;
+  font-weight: 600;
+  pointer-events: none;
+}
+
+.listings-map-panel {
+  position: absolute;
+  top: 0.75rem;
+  inset-inline-end: 0.75rem;
+  max-width: 16rem;
+  max-height: calc(100% - 1.5rem);
+  overflow-y: auto;
+  padding: 0.75rem;
+  background-color: var(--bs-body-bg);
+  border: 1px solid var(--bs-border-color);
+  border-radius: 0.5rem;
+  box-shadow: 0 0.25rem 0.75rem rgba(0, 0, 0, 0.15);
+}

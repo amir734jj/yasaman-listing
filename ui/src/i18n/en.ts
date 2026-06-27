@@ -32,6 +32,10 @@ export const en = {
     byOwner: 'Listings by {{name}}',
     allListings: '← All listings',
     viewDetails: 'View details',
+    viewGrid: 'Grid',
+    viewMap: 'Map',
+    mapEmpty: 'No listings with a known city to show on the map.',
+    mapHidden: '{{count}} listing(s) without a known city are not shown on the map.',
   },
   status: {
     Available: 'Available',
