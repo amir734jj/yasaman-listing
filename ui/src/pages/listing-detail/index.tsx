@@ -11,7 +11,9 @@ import { useLanguageStore } from '../../store/languageStore';
 import { useSeo } from '../../hooks/useSeo';
 import { listingJsonLd, breadcrumbJsonLd } from '../../hooks/structuredData';
 import { formatPrice } from '../../utils/format';
+import { findCity } from '../../data/iranCities';
 import MediaView from '../../components/media-view';
+import CityMap from '../../components/city-map';
 import './index.css';
 
 const statusVariant: Record<ListingStatus, string> = {
@@ -77,6 +79,7 @@ export default function ListingDetailPage() {
 
   const status = listing.status ?? ListingStatus.Available;
   const canManage = !!token && (isAdmin || listing.ownerId === userId);
+  const locationCity = findCity(listing.location ?? '');
 
   const markSold = async () => {
     await api.listing.listingsSoldCreate(listing.id!);
@@ -157,6 +160,13 @@ export default function ListingDetailPage() {
 
       <h3 className="h5 mt-4">{t('detail.description')}</h3>
       <p style={{ whiteSpace: 'pre-wrap' }}>{listing.description}</p>
+
+      {locationCity && (
+        <div className="my-3">
+          <h3 className="h5">{t('listings.location')}</h3>
+          <CityMap lat={locationCity.lat} lon={locationCity.lon} name={listing.location ?? ''} />
+        </div>
+      )}
 
       {canManage && (
         <div className="d-flex flex-wrap gap-2 mt-4">

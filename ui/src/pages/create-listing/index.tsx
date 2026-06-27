@@ -6,6 +6,9 @@ import { api } from '../../api/client';
 import FileDropzone from '../../components/file-dropzone';
 import TagsInput from '../../components/tags-input';
 import MediaView from '../../components/media-view';
+import CitySelect from '../../components/city-select';
+import CityMap from '../../components/city-map';
+import { findCity } from '../../data/iranCities';
 import { useSeo } from '../../hooks/useSeo';
 
 export default function CreateListingPage() {
@@ -24,6 +27,8 @@ export default function CreateListingPage() {
   const [existingMedia, setExistingMedia] = useState<string[]>([]);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
+
+  const locationCity = findCity(location);
 
   useEffect(() => {
     if (!isEdit || !id) return;
@@ -118,12 +123,12 @@ export default function CreateListingPage() {
 
         <Form.Group className="mb-3">
           <Form.Label>{t('create.location')}</Form.Label>
-          <Form.Control
-            value={location}
-            onChange={(e) => setLocation(e.target.value)}
-            placeholder={t('create.locationPlaceholder')}
-            required
-          />
+          <CitySelect value={location} onChange={setLocation} />
+          {locationCity && (
+            <div className="mt-2">
+              <CityMap lat={locationCity.lat} lon={locationCity.lon} name={location} />
+            </div>
+          )}
         </Form.Group>
 
         <Form.Group className="mb-3">

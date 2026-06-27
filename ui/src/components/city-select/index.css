@@ -1,0 +1,8 @@
+.city-select-menu {
+  position: absolute;
+  inset-inline: 0;
+  top: calc(100% + 2px);
+  z-index: 1000;
+  max-height: 240px;
+  overflow-y: auto;
+}
