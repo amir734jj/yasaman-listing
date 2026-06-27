@@ -90,6 +90,7 @@ export default function ProfilePage() {
             onChange={(e) => setName(e.target.value)}
             placeholder={t('profile.displayNamePlaceholder')}
             maxLength={256}
+            required
           />
         </Form.Group>
 

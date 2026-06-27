@@ -10,7 +10,8 @@ public class RegisterRequest
     [Required, MinLength(6)]
     public string Password { get; set; } = string.Empty;
 
-    public string? DisplayName { get; set; }
+    [Required, MaxLength(256)]
+    public string DisplayName { get; set; } = string.Empty;
 }
 
 public class LoginRequest
@@ -42,8 +43,8 @@ public class ProfileDto
 
 public class UpdateProfileRequest
 {
-    [MaxLength(256)]
-    public string? DisplayName { get; set; }
+    [Required, MaxLength(256)]
+    public string DisplayName { get; set; } = string.Empty;
 
     [MaxLength(2000)]
     public string? Description { get; set; }

@@ -57,7 +57,11 @@ export default function RegisterPage() {
           </Form.Group>
           <Form.Group className="mb-3">
             <Form.Label>{t('auth.displayName')}</Form.Label>
-            <Form.Control value={displayName} onChange={(e) => setDisplayName(e.target.value)} />
+            <Form.Control
+              value={displayName}
+              onChange={(e) => setDisplayName(e.target.value)}
+              required
+            />
           </Form.Group>
           <Form.Group className="mb-3">
             <Form.Label>{t('auth.password')}</Form.Label>

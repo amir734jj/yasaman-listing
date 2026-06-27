@@ -47,8 +47,11 @@ export interface ProfileDto {
 }
 
 export interface UpdateProfileRequest {
-  /** @maxLength 256 */
-  displayName?: string | null;
+  /**
+   * @minLength 1
+   * @maxLength 256
+   */
+  displayName: string;
   /** @maxLength 2000 */
   description?: string | null;
 }
@@ -135,7 +138,11 @@ export interface RegisterRequest {
   email: string;
   /** @minLength 6 */
   password: string;
-  displayName?: string | null;
+  /**
+   * @minLength 1
+   * @maxLength 256
+   */
+  displayName: string;
 }
 
 export interface UpdateListingRequest {

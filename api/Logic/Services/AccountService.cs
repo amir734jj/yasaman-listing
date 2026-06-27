@@ -32,7 +32,7 @@ public class AccountService : IAccountService
         {
             UserName = request.Email,
             Email = request.Email,
-            DisplayName = string.IsNullOrWhiteSpace(request.DisplayName) ? request.Email : request.DisplayName,
+            DisplayName = request.DisplayName.Trim(),
             EmailConfirmed = true,
             Enabled = true
         };
@@ -75,9 +75,12 @@ public class AccountService : IAccountService
         var user = await _userManager.FindByIdAsync(userId.ToString());
         if (user is null) return null;
 
-        user.DisplayName = string.IsNullOrWhiteSpace(request.DisplayName)
-            ? user.Email
-            : request.DisplayName.Trim();
+        if (string.IsNullOrWhiteSpace(request.DisplayName))
+        {
+            throw new InvalidOperationException("Display name is required.");
+        }
+
+        user.DisplayName = request.DisplayName.Trim();
         user.Description = string.IsNullOrWhiteSpace(request.Description) ? null : request.Description.Trim();
 
         var result = await _userManager.UpdateAsync(user);
