@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { Form, ListGroup } from 'react-bootstrap';
 import { useTranslation } from 'react-i18next';
-import { iranCities, type IranCity } from '../../data/iranCities';
+import { iranCities, normalizeCity, type IranCity } from '../../data/iranCities';
 import './index.css';
 
 interface CitySelectProps {
@@ -20,14 +20,9 @@ export default function CitySelect({ value, onChange }: CitySelectProps) {
 
   useEffect(() => setQuery(value), [value]);
 
-  const q = query.trim().toLowerCase();
+  const q = normalizeCity(query);
   const matches = iranCities
-    .filter(
-      (c) =>
-        !q ||
-        c.en.toLowerCase().includes(q) ||
-        c.fa.includes(query.trim()),
-    )
+    .filter((c) => !q || normalizeCity(c.en).includes(q) || normalizeCity(c.fa).includes(q))
     .slice(0, 25);
 
   const select = (c: IranCity) => {

@@ -62,9 +62,19 @@ export const iranCities: IranCity[] = [
   { en: 'Fasa', fa: 'فسا', lat: 28.9383, lon: 53.6482 },
 ];
 
-/** Finds a city by its English or Persian name (case-insensitive). */
+/** Normalizes a city name for searching: lowercase, Persian/Arabic variants, ZWNJ. */
+export function normalizeCity(name: string): string {
+  return name
+    .trim()
+    .toLowerCase()
+    .replace(/\u064a/g, '\u06cc') // Arabic yeh -> Persian yeh
+    .replace(/\u0643/g, '\u06a9') // Arabic kaf -> Persian kaf
+    .replace(/\u200c/g, ' '); // ZWNJ -> space
+}
+
+/** Finds a city by its English or Persian name (normalized, case-insensitive). */
 export function findCity(name: string): IranCity | undefined {
-  const value = name.trim().toLowerCase();
+  const value = normalizeCity(name);
   if (!value) return undefined;
-  return iranCities.find((c) => c.en.toLowerCase() === value || c.fa === name.trim());
+  return iranCities.find((c) => normalizeCity(c.en) === value || normalizeCity(c.fa) === value);
 }
