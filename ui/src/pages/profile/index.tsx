@@ -80,7 +80,7 @@ export default function ProfilePage() {
       <Form onSubmit={handleSubmit}>
         <Form.Group className="mb-3">
           <Form.Label>{t('profile.email')}</Form.Label>
-          <Form.Control value={email} disabled readOnly />
+          <Form.Control value={email} readOnly />
         </Form.Group>
 
         <Form.Group className="mb-3">
