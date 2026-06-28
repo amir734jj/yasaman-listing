@@ -9,32 +9,25 @@ namespace Api.Controllers;
 [ApiController]
 [Route("api/global-config")]
 [Authorize(Roles = Roles.Admin)]
-public class GlobalConfigController : ControllerBase
+public class GlobalConfigController(IGlobalConfigService globalConfigService) : ControllerBase
 {
-    private readonly IGlobalConfigService _globalConfigService;
-
-    public GlobalConfigController(IGlobalConfigService globalConfigService)
-    {
-        _globalConfigService = globalConfigService;
-    }
-
     [HttpGet]
     public async Task<ActionResult<GlobalConfigModel>> Get()
     {
-        return Ok(await _globalConfigService.GetAllAsync());
+        return Ok(await globalConfigService.GetAllAsync());
     }
 
     [HttpGet("public")]
     [AllowAnonymous]
     public async Task<ActionResult<Dictionary<string, object>>> GetPublic()
     {
-        return Ok(await _globalConfigService.GetPublicAsync());
+        return Ok(await globalConfigService.GetPublicAsync());
     }
 
     [HttpPost]
     public async Task<IActionResult> Update([FromBody] GlobalConfigModel config)
     {
-        await _globalConfigService.UpdateAsync(config);
+        await globalConfigService.UpdateAsync(config);
         return Ok(new { message = "Global config updated." });
     }
 }

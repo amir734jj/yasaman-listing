@@ -14,26 +14,18 @@ namespace Api.Controllers;
 /// </summary>
 [ApiController]
 [AllowAnonymous]
-public class SitemapController : ControllerBase
+public class SitemapController(IListingService listingService, IConfiguration configuration)
+    : ControllerBase
 {
     private const string SitemapNamespace = "http://www.sitemaps.org/schemas/sitemap/0.9";
-
-    private readonly IListingService _listingService;
-    private readonly IConfiguration _configuration;
-
-    public SitemapController(IListingService listingService, IConfiguration configuration)
-    {
-        _listingService = listingService;
-        _configuration = configuration;
-    }
 
     [HttpGet("sitemap.xml")]
     public async Task<IActionResult> Get(CancellationToken cancellationToken)
     {
-        var siteUrl = (_configuration.GetValue<string>("Seo:SiteUrl")
+        var siteUrl = (configuration.GetValue<string>("Seo:SiteUrl")
                        ?? $"{Request.Scheme}://{Request.Host}").TrimEnd('/');
 
-        var listings = await _listingService.SearchAsync(
+        var listings = await listingService.SearchAsync(
             new ListingSearchRequest { Page = 1, PageSize = 5000 },
             cancellationToken);
 

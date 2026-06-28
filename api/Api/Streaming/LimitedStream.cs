@@ -5,35 +5,27 @@ namespace Api.Streaming;
 /// Lets us stream an upload straight to storage while still rejecting oversized files
 /// without ever buffering the whole payload in memory.
 /// </summary>
-public sealed class LimitedStream : Stream
+public sealed class LimitedStream(Stream inner, long limit) : Stream
 {
-    private readonly Stream _inner;
-    private readonly long _limit;
     private long _read;
-
-    public LimitedStream(Stream inner, long limit)
-    {
-        _inner = inner;
-        _limit = limit;
-    }
 
     public override int Read(byte[] buffer, int offset, int count)
     {
-        var read = _inner.Read(buffer, offset, count);
+        var read = inner.Read(buffer, offset, count);
         Track(read);
         return read;
     }
 
     public override async ValueTask<int> ReadAsync(Memory<byte> buffer, CancellationToken cancellationToken = default)
     {
-        var read = await _inner.ReadAsync(buffer, cancellationToken);
+        var read = await inner.ReadAsync(buffer, cancellationToken);
         Track(read);
         return read;
     }
 
     public override async Task<int> ReadAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken)
     {
-        var read = await _inner.ReadAsync(buffer.AsMemory(offset, count), cancellationToken);
+        var read = await inner.ReadAsync(buffer.AsMemory(offset, count), cancellationToken);
         Track(read);
         return read;
     }
@@ -41,9 +33,9 @@ public sealed class LimitedStream : Stream
     private void Track(int read)
     {
         _read += read;
-        if (_read > _limit)
+        if (_read > limit)
         {
-            throw new InvalidOperationException($"File is too large. Maximum size is {_limit / (1024 * 1024)} MB.");
+            throw new InvalidOperationException($"File is too large. Maximum size is {limit / (1024 * 1024)} MB.");
         }
     }
 

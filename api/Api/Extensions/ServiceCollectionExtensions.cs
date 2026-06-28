@@ -29,7 +29,11 @@ public static class ServiceCollectionExtensions
 
         services.AddDbContext<DatabaseContext>(opt => opt.UseNpgsql(connectionString));
 
-        services.AddEfRepository<DatabaseContext>(x => x.Profile(typeof(DatabaseContext).Assembly));
+        services.AddEfRepository<DatabaseContext>(x =>
+        {
+            x.DefaultProfiles();
+            x.Profile(typeof(DatabaseContext).Assembly);
+        });
 
         services.AddFluentMigratorCore()
             .ConfigureRunner(rb => rb

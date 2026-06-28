@@ -4,12 +4,8 @@ using Models.Entities;
 
 namespace Data;
 
-public class DatabaseContext : IdentityDbContext<User, Role, Guid>
+public class DatabaseContext(DbContextOptions<DatabaseContext> options) : IdentityDbContext<User, Role, Guid>(options)
 {
-    public DatabaseContext(DbContextOptions<DatabaseContext> options) : base(options)
-    {
-    }
-
     public DbSet<Listing> Listings => Set<Listing>();
 
     public DbSet<GlobalConfig> GlobalConfigs => Set<GlobalConfig>();

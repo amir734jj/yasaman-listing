@@ -8,18 +8,11 @@ using Models.Entities;
 
 namespace Logic.Services;
 
-public class JwtService : IJwtService
+public class JwtService(JwtSettings settings) : IJwtService
 {
-    private readonly JwtSettings _settings;
-
-    public JwtService(JwtSettings settings)
-    {
-        _settings = settings;
-    }
-
     public (string Token, DateTimeOffset ExpiresAt) GenerateToken(User user, IList<string> roles)
     {
-        var expiresAt = DateTimeOffset.UtcNow.AddMinutes(_settings.ExpiryMinutes);
+        var expiresAt = DateTimeOffset.UtcNow.AddMinutes(settings.ExpiryMinutes);
 
         var claims = new List<Claim>
         {
@@ -31,12 +24,12 @@ public class JwtService : IJwtService
 
         claims.AddRange(roles.Select(role => new Claim(ClaimTypes.Role, role)));
 
-        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_settings.Key));
+        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(settings.Key));
         var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
         var token = new JwtSecurityToken(
-            issuer: _settings.Issuer,
-            audience: _settings.Audience,
+            issuer: settings.Issuer,
+            audience: settings.Audience,
             claims: claims,
             expires: expiresAt.UtcDateTime,
             signingCredentials: credentials);

@@ -13,22 +13,15 @@ namespace Api.Controllers;
 /// </summary>
 [ApiController]
 [Route("api/files")]
-public class FileController : ControllerBase
+public class FileController(IStorageService storage) : ControllerBase
 {
     private const int ThumbnailMaxSize = 400;
-
-    private readonly IStorageService _storage;
-
-    public FileController(IStorageService storage)
-    {
-        _storage = storage;
-    }
 
     [HttpGet("{fileId:guid}")]
     [AllowAnonymous]
     public async Task<IActionResult> Get(Guid fileId, [FromQuery] string? thumb, CancellationToken cancellationToken)
     {
-        var file = await _storage.GetAsync(fileId, cancellationToken);
+        var file = await storage.GetAsync(fileId, cancellationToken);
         if (file is null)
         {
             return NotFound();
@@ -49,7 +42,7 @@ public class FileController : ControllerBase
             }
 
             // Decoding failed; fall back to the original file fetched fresh.
-            file = await _storage.GetAsync(fileId, cancellationToken);
+            file = await storage.GetAsync(fileId, cancellationToken);
             if (file is null)
             {
                 return NotFound();
@@ -89,7 +82,7 @@ public class FileController : ControllerBase
     [AllowAnonymous]
     public async Task<IActionResult> Head(Guid fileId, CancellationToken cancellationToken)
     {
-        var contentType = await _storage.GetContentTypeAsync(fileId, cancellationToken);
+        var contentType = await storage.GetContentTypeAsync(fileId, cancellationToken);
         if (contentType is null)
         {
             return NotFound();

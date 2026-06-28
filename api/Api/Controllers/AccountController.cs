@@ -8,22 +8,15 @@ namespace Api.Controllers;
 
 [ApiController]
 [Route("api/account")]
-public class AccountController : ControllerBase
+public class AccountController(IAccountService accountService) : ControllerBase
 {
-    private readonly IAccountService _accountService;
-
-    public AccountController(IAccountService accountService)
-    {
-        _accountService = accountService;
-    }
-
     [HttpPost("register")]
     [AllowAnonymous]
     public async Task<ActionResult<AuthResponse>> Register([FromBody] RegisterRequest request, CancellationToken cancellationToken)
     {
         try
         {
-            return Ok(await _accountService.RegisterAsync(request, cancellationToken));
+            return Ok(await accountService.RegisterAsync(request, cancellationToken));
         }
         catch (InvalidOperationException ex)
         {
@@ -37,7 +30,7 @@ public class AccountController : ControllerBase
     {
         try
         {
-            return Ok(await _accountService.LoginAsync(request, cancellationToken));
+            return Ok(await accountService.LoginAsync(request, cancellationToken));
         }
         catch (UnauthorizedAccessException ex)
         {
@@ -49,7 +42,7 @@ public class AccountController : ControllerBase
     [Authorize]
     public async Task<ActionResult<ProfileDto>> GetProfile(CancellationToken cancellationToken)
     {
-        var profile = await _accountService.GetProfileAsync(User.GetUserId(), cancellationToken);
+        var profile = await accountService.GetProfileAsync(User.GetUserId(), cancellationToken);
         return profile is null ? NotFound() : Ok(profile);
     }
 
@@ -59,7 +52,7 @@ public class AccountController : ControllerBase
     {
         try
         {
-            var profile = await _accountService.UpdateProfileAsync(User.GetUserId(), request, cancellationToken);
+            var profile = await accountService.UpdateProfileAsync(User.GetUserId(), request, cancellationToken);
             return profile is null ? NotFound() : Ok(profile);
         }
         catch (InvalidOperationException ex)
@@ -74,7 +67,7 @@ public class AccountController : ControllerBase
     {
         try
         {
-            await _accountService.ChangePasswordAsync(User.GetUserId(), request, cancellationToken);
+            await accountService.ChangePasswordAsync(User.GetUserId(), request, cancellationToken);
             return NoContent();
         }
         catch (InvalidOperationException ex)

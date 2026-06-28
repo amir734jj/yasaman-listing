@@ -8,19 +8,9 @@ using Microsoft.Extensions.Logging;
 
 namespace Logic.Services;
 
-public class S3StorageService : IStorageService
+public class S3StorageService(IAmazonS3 client, S3Settings settings, ILogger<S3StorageService> logger)
+    : IStorageService
 {
-    private readonly IAmazonS3 _client;
-    private readonly S3Settings _settings;
-    private readonly ILogger<S3StorageService> _logger;
-
-    public S3StorageService(IAmazonS3 client, S3Settings settings, ILogger<S3StorageService> logger)
-    {
-        _client = client;
-        _settings = settings;
-        _logger = logger;
-    }
-
     public async Task<Guid> UploadAsync(UploadFileRequest request, CancellationToken cancellationToken = default)
     {
         var fileId = Guid.NewGuid();
@@ -29,8 +19,8 @@ public class S3StorageService : IStorageService
         // AWS SDK v4 signs uploads with the chunked STREAMING-AWS4-HMAC-SHA256-PAYLOAD signature
         // by default, which most S3-compatible providers don't implement. Disabling payload
         // signing (UNSIGNED-PAYLOAD) avoids it; the SDK only allows this over HTTPS.
-        var isHttps = string.IsNullOrEmpty(_settings.ServiceUrl)
-            || _settings.ServiceUrl.StartsWith("https", StringComparison.OrdinalIgnoreCase);
+        var isHttps = string.IsNullOrEmpty(settings.ServiceUrl)
+            || settings.ServiceUrl.StartsWith("https", StringComparison.OrdinalIgnoreCase);
 
         // PutObject needs a known Content-Length, so spool a forward-only stream to a temp file
         // (streamed to disk, not held in memory, auto-deleted on close).
@@ -54,7 +44,7 @@ public class S3StorageService : IStorageService
         {
             var put = new PutObjectRequest
             {
-                BucketName = _settings.BucketName,
+                BucketName = settings.BucketName,
                 Key = key,
                 InputStream = content,
                 ContentType = request.ContentType,
@@ -67,7 +57,7 @@ public class S3StorageService : IStorageService
                 put.Metadata.Add(metaKey, metaValue);
             }
 
-            await _client.PutObjectAsync(put, cancellationToken);
+            await client.PutObjectAsync(put, cancellationToken);
         }
         finally
         {
@@ -84,9 +74,9 @@ public class S3StorageService : IStorageService
     {
         try
         {
-            var response = await _client.GetObjectAsync(new GetObjectRequest
+            var response = await client.GetObjectAsync(new GetObjectRequest
             {
-                BucketName = _settings.BucketName,
+                BucketName = settings.BucketName,
                 Key = KeyFor(fileId)
             }, cancellationToken);
 
@@ -111,9 +101,9 @@ public class S3StorageService : IStorageService
     {
         try
         {
-            var meta = await _client.GetObjectMetadataAsync(new GetObjectMetadataRequest
+            var meta = await client.GetObjectMetadataAsync(new GetObjectMetadataRequest
             {
-                BucketName = _settings.BucketName,
+                BucketName = settings.BucketName,
                 Key = KeyFor(fileId)
             }, cancellationToken);
 
@@ -129,15 +119,15 @@ public class S3StorageService : IStorageService
     {
         try
         {
-            await _client.DeleteObjectAsync(new DeleteObjectRequest
+            await client.DeleteObjectAsync(new DeleteObjectRequest
             {
-                BucketName = _settings.BucketName,
+                BucketName = settings.BucketName,
                 Key = KeyFor(fileId)
             }, cancellationToken);
         }
         catch (AmazonS3Exception ex)
         {
-            _logger.LogError(ex, "Failed deleting S3 object {FileId}", fileId);
+            logger.LogError(ex, "Failed deleting S3 object {FileId}", fileId);
         }
     }
 

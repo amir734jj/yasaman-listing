@@ -10,25 +10,18 @@ namespace Api.Controllers;
 [ApiController]
 [Route("api/users")]
 [Authorize(Roles = Roles.Admin)]
-public class UserController : ControllerBase
+public class UserController(IUserService userService) : ControllerBase
 {
-    private readonly IUserService _userService;
-
-    public UserController(IUserService userService)
-    {
-        _userService = userService;
-    }
-
     [HttpGet]
     public async Task<ActionResult<List<UserDto>>> GetAll(CancellationToken cancellationToken)
     {
-        return Ok(await _userService.GetAllAsync(cancellationToken));
+        return Ok(await userService.GetAllAsync(cancellationToken));
     }
 
     [HttpPost("{id:guid}/activate")]
     public async Task<ActionResult<UserDto>> Activate(Guid id, CancellationToken cancellationToken)
     {
-        var user = await _userService.SetEnabledAsync(id, true, cancellationToken);
+        var user = await userService.SetEnabledAsync(id, true, cancellationToken);
         return user is null ? NotFound() : Ok(user);
     }
 
@@ -40,7 +33,7 @@ public class UserController : ControllerBase
             return BadRequest(new { message = "You cannot deactivate your own account." });
         }
 
-        var user = await _userService.SetEnabledAsync(id, false, cancellationToken);
+        var user = await userService.SetEnabledAsync(id, false, cancellationToken);
         return user is null ? NotFound() : Ok(user);
     }
 
@@ -52,7 +45,7 @@ public class UserController : ControllerBase
             return BadRequest(new { message = "You cannot delete your own account." });
         }
 
-        var deleted = await _userService.DeleteAsync(id, cancellationToken);
+        var deleted = await userService.DeleteAsync(id, cancellationToken);
         return deleted ? NoContent() : NotFound();
     }
 }

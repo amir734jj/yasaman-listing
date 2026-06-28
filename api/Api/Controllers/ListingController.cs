@@ -15,15 +15,8 @@ namespace Api.Controllers;
 
 [ApiController]
 [Route("api/listings")]
-public class ListingController : ControllerBase
+public class ListingController(IListingService listingService) : ControllerBase
 {
-    private readonly IListingService _listingService;
-
-    public ListingController(IListingService listingService)
-    {
-        _listingService = listingService;
-    }
-
     [HttpGet]
     [AllowAnonymous]
     public async Task<ActionResult<PagedResult<ListingDto>>> Search(
@@ -44,14 +37,14 @@ public class ListingController : ControllerBase
             Page = page,
             PageSize = pageSize
         };
-        return Ok(await _listingService.SearchAsync(request, cancellationToken));
+        return Ok(await listingService.SearchAsync(request, cancellationToken));
     }
 
     [HttpGet("{id:guid}")]
     [AllowAnonymous]
     public async Task<ActionResult<ListingDto>> GetById(Guid id, CancellationToken cancellationToken)
     {
-        var listing = await _listingService.GetByIdAsync(id, cancellationToken);
+        var listing = await listingService.GetByIdAsync(id, cancellationToken);
         return listing is null ? NotFound() : Ok(listing);
     }
 
@@ -59,7 +52,7 @@ public class ListingController : ControllerBase
     [Authorize]
     public async Task<ActionResult<ListingDto>> Create([FromBody] CreateListingRequest request, CancellationToken cancellationToken)
     {
-        var listing = await _listingService.CreateAsync(User.GetUserId(), request, cancellationToken);
+        var listing = await listingService.CreateAsync(User.GetUserId(), request, cancellationToken);
         return CreatedAtAction(nameof(GetById), new { id = listing.Id }, listing);
     }
 
@@ -69,7 +62,7 @@ public class ListingController : ControllerBase
     {
         try
         {
-            var listing = await _listingService.UpdateAsync(id, User.GetUserId(), User.IsAdmin(), request, cancellationToken);
+            var listing = await listingService.UpdateAsync(id, User.GetUserId(), User.IsAdmin(), request, cancellationToken);
             return listing is null ? NotFound() : Ok(listing);
         }
         catch (UnauthorizedAccessException ex)
@@ -84,7 +77,7 @@ public class ListingController : ControllerBase
     {
         try
         {
-            var listing = await _listingService.MarkSoldAsync(id, User.GetUserId(), User.IsAdmin(), cancellationToken);
+            var listing = await listingService.MarkSoldAsync(id, User.GetUserId(), User.IsAdmin(), cancellationToken);
             return listing is null ? NotFound() : Ok(listing);
         }
         catch (UnauthorizedAccessException)
@@ -99,7 +92,7 @@ public class ListingController : ControllerBase
     {
         try
         {
-            var listing = await _listingService.MarkAvailableAsync(id, User.GetUserId(), User.IsAdmin(), cancellationToken);
+            var listing = await listingService.MarkAvailableAsync(id, User.GetUserId(), User.IsAdmin(), cancellationToken);
             return listing is null ? NotFound() : Ok(listing);
         }
         catch (UnauthorizedAccessException)
@@ -114,7 +107,7 @@ public class ListingController : ControllerBase
     {
         try
         {
-            var listing = await _listingService.MarkUnavailableAsync(id, User.GetUserId(), User.IsAdmin(), cancellationToken);
+            var listing = await listingService.MarkUnavailableAsync(id, User.GetUserId(), User.IsAdmin(), cancellationToken);
             return listing is null ? NotFound() : Ok(listing);
         }
         catch (UnauthorizedAccessException)
@@ -129,7 +122,7 @@ public class ListingController : ControllerBase
     {
         try
         {
-            var deleted = await _listingService.DeleteAsync(id, User.GetUserId(), User.IsAdmin(), cancellationToken);
+            var deleted = await listingService.DeleteAsync(id, User.GetUserId(), User.IsAdmin(), cancellationToken);
             return deleted ? NoContent() : NotFound();
         }
         catch (UnauthorizedAccessException)
@@ -189,7 +182,7 @@ public class ListingController : ControllerBase
                         FileName = disposition.FileName.Value,
                         ContentType = contentType
                     };
-                    var fileId = await _listingService.AddMediaAsync(id, User.GetUserId(), User.IsAdmin(), upload, cancellationToken);
+                    var fileId = await listingService.AddMediaAsync(id, User.GetUserId(), User.IsAdmin(), upload, cancellationToken);
                     return fileId is null
                         ? NotFound()
                         : Ok(new { id = fileId, url = $"/api/files/{fileId}" });
@@ -216,7 +209,7 @@ public class ListingController : ControllerBase
     {
         try
         {
-            var removed = await _listingService.RemoveMediaAsync(id, fileId, User.GetUserId(), User.IsAdmin(), cancellationToken);
+            var removed = await listingService.RemoveMediaAsync(id, fileId, User.GetUserId(), User.IsAdmin(), cancellationToken);
             return removed ? NoContent() : NotFound();
         }
         catch (UnauthorizedAccessException)
@@ -235,7 +228,7 @@ public class ListingController : ControllerBase
     {
         try
         {
-            var reordered = await _listingService.ReorderMediaAsync(id, request.MediaIds, User.GetUserId(), User.IsAdmin(), cancellationToken);
+            var reordered = await listingService.ReorderMediaAsync(id, request.MediaIds, User.GetUserId(), User.IsAdmin(), cancellationToken);
             return reordered ? NoContent() : NotFound();
         }
         catch (UnauthorizedAccessException)

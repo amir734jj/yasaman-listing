@@ -11,19 +11,11 @@ namespace Logic.BackgroundJobs;
 /// <summary>
 /// Periodically marks listings that have been sold for more than 7 days as unavailable.
 /// </summary>
-public class ListingExpiryJob : BackgroundService
+public class ListingExpiryJob(IServiceScopeFactory scopeFactory, ILogger<ListingExpiryJob> logger)
+    : BackgroundService
 {
     private static readonly TimeSpan Interval = TimeSpan.FromHours(1);
     private static readonly TimeSpan SoldRetention = TimeSpan.FromDays(7);
-
-    private readonly IServiceScopeFactory _scopeFactory;
-    private readonly ILogger<ListingExpiryJob> _logger;
-
-    public ListingExpiryJob(IServiceScopeFactory scopeFactory, ILogger<ListingExpiryJob> logger)
-    {
-        _scopeFactory = scopeFactory;
-        _logger = logger;
-    }
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
@@ -35,7 +27,7 @@ public class ListingExpiryJob : BackgroundService
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Failed to expire sold listings.");
+                logger.LogError(ex, "Failed to expire sold listings.");
             }
 
             await Task.Delay(Interval, stoppingToken);
@@ -44,7 +36,7 @@ public class ListingExpiryJob : BackgroundService
 
     private async Task ExpireListingsAsync(CancellationToken cancellationToken)
     {
-        using var scope = _scopeFactory.CreateScope();
+        using var scope = scopeFactory.CreateScope();
         var repository = scope.ServiceProvider.GetRequiredService<IEfRepository>();
         var listings = repository.For<Listing>();
 
@@ -65,6 +57,6 @@ public class ListingExpiryJob : BackgroundService
             });
         }
 
-        _logger.LogInformation("Marked {Count} sold listing(s) as unavailable.", expired.Count);
+        logger.LogInformation("Marked {Count} sold listing(s) as unavailable.", expired.Count);
     }
 }

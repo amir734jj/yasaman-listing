@@ -7,14 +7,9 @@ using Models.Entities;
 
 namespace Logic.Services;
 
-public class GlobalConfigService : IGlobalConfigService
+public class GlobalConfigService(IEfRepository repository) : IGlobalConfigService
 {
-    private readonly IBasicCrud<GlobalConfig> _crud;
-
-    public GlobalConfigService(IEfRepository repository)
-    {
-        _crud = repository.For<GlobalConfig>();
-    }
+    private readonly IBasicCrud<GlobalConfig> _crud = repository.For<GlobalConfig>();
 
     public async Task<GlobalConfigModel> GetAllAsync()
     {

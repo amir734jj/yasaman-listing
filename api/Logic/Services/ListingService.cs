@@ -13,20 +13,11 @@ using Models.Enums;
 
 namespace Logic.Services;
 
-public class ListingService : IListingService
+public class ListingService(IEfRepository repository, IStorageService storage) : IListingService
 {
     private const int MaxMediaPerListing = 10;
 
-    private readonly IEfRepository _repository;
-    private readonly IStorageService _storage;
-
-    public ListingService(IEfRepository repository, IStorageService storage)
-    {
-        _repository = repository;
-        _storage = storage;
-    }
-
-    private IBasicCrud<Listing> Listings() => _repository.For<Listing>();
+    private IBasicCrud<Listing> Listings() => repository.For<Listing>();
 
     public async Task<PagedResult<ListingDto>> SearchAsync(ListingSearchRequest request, CancellationToken cancellationToken = default)
     {
@@ -193,7 +184,7 @@ public class ListingService : IListingService
 
         foreach (var fileId in listing.MediaFileIds)
         {
-            await _storage.DeleteAsync(fileId, cancellationToken);
+            await storage.DeleteAsync(fileId, cancellationToken);
         }
 
         await Listings().Delete(id);
@@ -221,7 +212,7 @@ public class ListingService : IListingService
         file.Metadata[MediaMetadataKeys.ContentType] = file.ContentType;
         file.Metadata[MediaMetadataKeys.OriginalFilename] = Uri.EscapeDataString(file.FileName);
 
-        var fileId = await _storage.UploadAsync(file, cancellationToken);
+        var fileId = await storage.UploadAsync(file, cancellationToken);
 
         await Listings().Update(id, x =>
         {
@@ -245,7 +236,7 @@ public class ListingService : IListingService
             throw new InvalidOperationException("A listing must have at least one photo or video.");
         }
 
-        await _storage.DeleteAsync(fileId, cancellationToken);
+        await storage.DeleteAsync(fileId, cancellationToken);
 
         await Listings().Update(listingId, x =>
         {
