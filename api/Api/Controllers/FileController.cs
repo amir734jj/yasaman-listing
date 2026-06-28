@@ -76,7 +76,7 @@ public class FileController : ControllerBase
             }));
 
             using var output = new MemoryStream();
-            await image.SaveAsJpegAsync(output, new JpegEncoder { Quality = 70 }, cancellationToken);
+            await image.SaveAsJpegAsync(output, new JpegEncoder { Quality = 75 }, cancellationToken);
             return output.ToArray();
         }
         catch
