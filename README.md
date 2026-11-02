@@ -2,7 +2,7 @@
 
 A free classifieds site for Iran — think a small, local Craigslist. People can post things for sale with photos and a price, browse by city, and just list and find stuff. It speaks both Farsi (RTL) and English, and works fine on a slow connection.
 
-🔗 **Live:** https://yasaman-listing.coolify.hesamian.com/
+🔗 **Live:** https://yasaman-listing.hesamian.com/
 
 ![Yasaman Listing](docs/screenshot.png)
 
